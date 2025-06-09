@@ -1,0 +1,12 @@
+/keys.json
+/venv
+/.vscode
+venv/
+venv
+.vs
+db.sqlite3
+__pycache__
+media/
+.vscode/
+.env
+.envdev
