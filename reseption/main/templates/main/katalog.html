@@ -1,4 +1,456 @@
 {% extends "main/katalogbase.html" %}
 {% block content %}
-daaaasdadasda
+<style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        background-color: #f4f7f6;
+        margin: 0;
+        padding: 20px;
+    }
+
+    .page-wrapper {
+        display: grid;
+        gap: 30px;
+        /* По умолчанию у нас одна колонка. 
+           Для больших экранов мы изменим это в медиа-запросе.
+        */
+        grid-template-columns: 1fr;
+    }
+
+    /* --- Стили для сайдбара с фильтрами --- */
+    .filters-sidebar {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        /* Добавляем 'position: sticky', чтобы фильтры "прилипали" при прокрутке на больших экранах */
+        position: sticky;
+        top: 20px;
+        align-self: start; /* Важно для правильной работы sticky */
+    }
+
+    .filters-sidebar h3 {
+        margin-top: 0;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+
+    .filter-group {
+        margin-bottom: 20px;
+    }
+
+    .filter-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+
+    /* --- Стили для грида с товарами --- */
+    .product-grid {
+        display: grid;
+        gap: 20px;
+        /* Для мобильных устройств — 1-2 колонки, в зависимости от ширины */
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+
+    /* --- Стили для карточки товара --- */
+    .product-card {
+        overflow: hidden; /* Скрываем все, что выходит за пределы скругленных углов */
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .product-image {
+        width: 100%;
+        height: 300px;
+        background-color: #eee;
+        /* Картинка будет заполнять блок, сохраняя пропорции */
+        object-fit: cover; 
+    }
+
+    .product-info {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+        color: #272727;
+        font-weight: 600;
+        font-family: 'Montserrat';
+        flex-grow: 1; /* Позволяет этому блоку занять все оставшееся место */
+    }
+
+    .product-name {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+        color: #333;
+    }
+
+    .push-down {
+        margin-top: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-price {
+        font-size: 24px;
+        font-weight: 700;
+        color: #111;
+        padding-top : 20px;
+        padding-bottom: 10px;
+        text-align: center;
+    }
+
+    .product-button {
+        width: 95%; 
+        align-self: center;
+        padding: 12px 25px;
+        background-color: #ed8630;
+        color: white !important;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: background-color 0.2s ease;
+    }
+    .availabels {
+        -webkit-font-smoothing: antialiased;
+        text-align: left;
+        box-sizing: content-box;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        margin-top: 8px;
+        word-break: break-word;
+        line-height: 1.2;
+        color: #272727;
+        font-weight: 400;
+        font-family: 'Montserrat';
+        font-size: 12px;
+    }
+
+    .load-more-container {
+        grid-column: 1 / -1; /* Заставляет кнопку занять всю ширину грида */
+        text-align: center;
+        padding: 20px 0;
+    }
+    #load-more-btn {
+        width: 350px;
+        padding: 12px 30px;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 8px;
+    }
+    #load-more-btn:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+
+    /* --- Медиа-запрос для больших экранов --- */
+    /* Эти стили применятся, только если ширина экрана 992px или больше */
+    @media (min-width: 992px) {
+        .page-wrapper {
+            /* Создаем грид из 2-х колонок. 
+               Фильтры займут 1 часть, товары - 3 части. */
+            grid-template-columns: 1fr 3fr;
+        }
+
+        /* ИЗМЕНЕНИЕ: Устанавливаем строго 3 колонки для каталога на больших экранах */
+        .product-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+</style>
+
+<style>
+    .price-slider-container {
+        padding: 0 10px;
+    }
+    
+    .price-values {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .slider-track-container {
+        position: relative;
+        height: 5px;
+        background-color: #ddd;
+        border-radius: 5px;
+    }
+
+    .slider-progress {
+        position: absolute;
+        height: 100%;
+        background-color: #007bff;
+        border-radius: 5px;
+        top: 0;
+    }
+
+    .range-input {
+        position: relative;
+        width: 100%;
+    }
+
+    .range-input input[type="range"] {
+        position: absolute;
+        width: 100%;
+        height: 5px;
+        top: -5px;
+        background: none;
+        pointer-events: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+        height: 17px;
+        width: 17px;
+        border-radius: 50%;
+        background: #007bff;
+        pointer-events: auto;
+        -webkit-appearance: none;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+        height: 17px;
+        width: 17px;
+        border: none;
+        border-radius: 50%;
+        background: #007bff;
+        pointer-events: auto;
+        -moz-appearance: none;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+    }
+
+    .apply-filter-btn {
+        width: 100%;
+        padding: 10px;
+        margin-top: 20px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .apply-filter-btn:hover {
+        background-color: #218838;
+    }
+</style>
+<div class="page-wrapper">
+        
+    <!-- КОЛОНКА С ФИЛЬТРАМИ -->
+    <aside class="filters-sidebar">
+        <h3>Фильтры</h3>
+        
+        <!-- НОВЫЙ БЛОК ФИЛЬТРА ЦЕН С ПОЛЗУНКОМ -->
+        <div class="filter-group">
+            <label>Цена</label>
+            <div class="price-slider-container">
+                <div class="price-values">
+                    <span id="min-price-display"></span>
+                    <span>-</span>
+                    <span id="max-price-display"></span>
+                </div>
+                <div class="slider-track-container">
+                    <div class="slider-track"></div>
+                    <div class="slider-progress" id="slider-progress"></div>
+                    <div class="range-input">
+                        <input type="range" class="range-min" id="min-price-slider" 
+                               min="{{ min_price_overall|default:0 }}" 
+                               max="{{ max_price_overall|default:100000 }}" 
+                               value="{{ current_min_price|default:min_price_overall }}">
+                        <input type="range" class="range-max" id="max-price-slider" 
+                               min="{{ min_price_overall|default:0 }}" 
+                               max="{{ max_price_overall|default:100000 }}" 
+                               value="{{ current_max_price|default:max_price_overall }}">
+                    </div>
+                </div>
+            </div>
+            <button id="apply-filters-btn" class="apply-filter-btn">Применить</button>
+        </div>
+
+        <div class="filter-group">
+            <label for="price-range">Цена</label>
+            <input type="range" id="price-range" name="price" min="0" max="1000">
+        </div>
+        <div class="filter-group">
+            <label>Категория</label>
+            <div><input type="checkbox" id="cat1"> <label for="cat1">Столы</label></div>
+            <div><input type="checkbox" id="cat2"> <label for="cat2">Стулья</label></div>
+            <div><input type="checkbox" id="cat3"> <label for="cat3">Шкафы</label></div>
+        </div>
+    </aside>
+
+    <!-- КОЛОНКА С ТОВАРАМИ -->
+    <main class="product-grid" id="product-grid-id">
+        {% for product in products %}
+            <div class="product-card">
+                <a href="{% url "main:product_detail" product.id %}">
+                <img src="{{product.gallery_images.first.image_url}}" alt="Товар 1" class="product-image">
+                <div class="product-info">
+                    
+                        <h4 class="product-name">{{product.name}}</h4>
+                        <p class="availabels"> Available in different sizes and colors.</p>
+                        
+                        <div class="push-down">
+                        <p class="product-price">$ {{product.base_price}}</p>
+                        <a href="#" class="product-button">To prices and colors</a>
+                        </div>
+                </div>
+            </a>
+            </div>
+        {% endfor %}
+
+        
+    </main>
+    
+    {% if show_more_btn %}
+    <div class="load-more-container">
+        <button id="load-more-btn">Download more</button>
+    </div>
+    {% endif %}
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const minSlider = document.getElementById('min-price-slider');
+        const maxSlider = document.getElementById('max-price-slider');
+        const minDisplay = document.getElementById('min-price-display');
+        const maxDisplay = document.getElementById('max-price-display');
+        const progress = document.getElementById('slider-progress');
+        const applyBtn = document.getElementById('apply-filters-btn');
+        
+        const minVal = parseInt(minSlider.min);
+        const maxVal = parseInt(maxSlider.max);
+        const priceGap = Math.max(1, (maxVal - minVal) * 0.05); // Минимальный зазор между ползунками
+
+        function updateSlider() {
+            let currentMin = parseInt(minSlider.value);
+            let currentMax = parseInt(maxSlider.value);
+
+            // Гарантируем, что ползунки не зайдут друг на друга
+            if (currentMax - currentMin < priceGap) {
+                if (this.classList.contains("range-min")) {
+                    minSlider.value = currentMax - priceGap;
+                } else {
+                    maxSlider.value = currentMin + priceGap;
+                }
+                // Обновляем значения после корректировки
+                currentMin = parseInt(minSlider.value);
+                currentMax = parseInt(maxSlider.value);
+            }
+
+            // Обновляем текстовые значения
+            minDisplay.textContent = '$ ' + currentMin.toLocaleString('en');
+            maxDisplay.textContent = '$ ' + currentMax.toLocaleString('en');
+
+            // Обновляем полосу прогресса
+            const rangeTotal = maxVal - minVal;
+            const leftPercent = ((currentMin - minVal) / rangeTotal) * 100;
+            const rightPercent = ((currentMax - minVal) / rangeTotal) * 100;
+            progress.style.left = leftPercent + "%";
+            progress.style.width = (rightPercent - leftPercent) + "%";
+        }
+        
+        // Вызываем функцию при первой загрузке, чтобы установить начальные значения
+        updateSlider();
+
+        minSlider.addEventListener('input', updateSlider);
+        maxSlider.addEventListener('input', updateSlider);
+
+        // Обработчик для кнопки "Применить"
+        applyBtn.addEventListener('click', function() {
+            const currentUrl = new URL(window.location.href);
+            const minPrice = minSlider.value;
+            const maxPrice = maxSlider.value;
+            
+            currentUrl.searchParams.set('price_min', minPrice);
+            currentUrl.searchParams.set('price_max', maxPrice);
+            
+            window.location.href = currentUrl.toString();
+        });
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Находим нужные элементы на странице
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        const productGrid = document.getElementById('product-grid-id');
+        
+        // Запоминаем номер текущей страницы. Начинаем со второй, т.к. первая уже загружена.
+        let currentPage = 2;
+
+        // Вешаем обработчик события на клик по кнопке
+        loadMoreBtn.addEventListener('click', function() {
+            // Блокируем кнопку, чтобы избежать двойных нажатий
+            loadMoreBtn.disabled = true;
+            loadMoreBtn.textContent = 'Загрузка...';
+
+            // Формируем URL для AJAX-запроса
+            const url = `/load_more_products/?page=${currentPage}&price_min={{current_min_price}}&price_max={{current_max_price}}`;
+
+            // Отправляем фоновый GET-запрос на сервер
+            fetch(url)
+                .then(response => response.text()) // Получаем ответ как текст (HTML)
+                .then(html => {
+                    if (html.trim()) {
+                        // --- НОВЫЙ, НАДЕЖНЫЙ СПОСОБ ДОБАВЛЕНИЯ ЭЛЕМЕНТОВ ---
+                            
+                        // 1. Используем стандартный DOMParser для разбора строки в полноценный HTML-документ
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, "text/html");
+
+                        // 2. Берем все дочерние элементы из <body> этого документа (это и есть наши карточки)
+                        const newCards = Array.from(doc.body.children);
+
+                        // 3. Добавляем каждую новую карточку в конец нашего грида
+                        newCards.forEach(card => {
+                            productGrid.appendChild(card);
+                        });
+                        
+                        // Увеличиваем счетчик страниц для следующего запроса
+                        currentPage++;
+                        
+                        // Снова включаем кнопку
+                        loadMoreBtn.disabled = false;
+                        loadMoreBtn.textContent = 'Загрузить еще';
+                    } else {
+                        // Если сервер вернул пустой ответ, значит, товары закончились.
+                        // Прячем кнопку навсегда.
+                        loadMoreBtn.textContent = 'Все товары загружены';
+                        loadMoreBtn.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при загрузке товаров:', error);
+                    loadMoreBtn.disabled = false;
+                    loadMoreBtn.textContent = 'Ошибка загрузки. Попробовать снова?';
+                });
+        });
+    });
+</script>
+
 {% endblock content %}
+
+
+

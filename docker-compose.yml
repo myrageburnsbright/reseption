@@ -1,0 +1,41 @@
+volumes:
+  postgres_data:
+  static_data:
+  media_data:
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: reseption-db
+    env_file: .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "${POSTGRES_SHARED_PORT}:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    restart: always
+
+  backend:
+    build: ./backend
+    container_name: reseption-backend
+    env_file: .env
+    volumes:
+      - static_data:/app/static
+      - media_data:/app/media
+    depends_on:
+      - db
+    ports:
+      - 8000:8000
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    command: sh -c "python3 manage.py makemigrations &&
+                    python3 manage.py migrate &&
+                    python3 manage.py collectstatic --noinput &&
+                    gunicorn bigcorp.wsgi:application --bind 0.0.0.0:8000 --workers 3 --access-logfile - --error-logfile -"

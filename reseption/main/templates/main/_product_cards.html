@@ -1,0 +1,17 @@
+{% for product in products %}
+            <div class="product-card">
+                <a href="#">
+                <img src="{{product.gallery_images.first.image_url}}" alt="Товар 1" class="product-image">
+                <div class="product-info">
+                    
+                        <h4 class="product-name">{{product.name}}</h4>
+                        <p class="availabels"> Available in different sizes and colors.</p>
+                        
+                        <div class="push-down">
+                        <p class="product-price">$ {{product.base_price}}</p>
+                        <a href="#" class="product-button">To prices and colors</a>
+                        </div>
+                </div>
+            </a>
+            </div>
+        {% endfor %}
