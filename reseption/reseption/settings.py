@@ -23,12 +23,17 @@ env.read_env(ENV_DIR/ '.env')
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-bl%9#p3&ervg8umn&j*frl6jsux+ei#f0@6gk3f+*ymbnpquvc'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['*'] 
+ALLOWED_HOSTS = ['localhost', '127.0.0.1','www.' + env('DOMAIN_TRUSTED'), env('DOMAIN_TRUSTED')]
+FORCE_SCRIPT_NAME = '/reseption'
+CSRF_TRUSTED_ORIGINS = [
+    'https://' + env('DOMAIN_TRUSTED'),
+    'https://www.' + env('DOMAIN_TRUSTED'),
+] 
 
 # Application definition
 
@@ -121,9 +126,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = FORCE_SCRIPT_NAME + 'static/'
 STATIC_ROOT = BASE_DIR / 'static'
-MEDIA_URL = 'media/'
+MEDIA_URL = FORCE_SCRIPT_NAME + 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
