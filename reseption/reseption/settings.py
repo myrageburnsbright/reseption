@@ -26,10 +26,9 @@ env.read_env(ENV_DIR/ '.env')
 SECRET_KEY = 'django-insecure-bl%9#p3&ervg8umn&j*frl6jsux+ei#f0@6gk3f+*ymbnpquvc'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['*'] 
 
 # Application definition
 
@@ -82,8 +81,8 @@ DATABASES = {
         "NAME": env("POSTGRES_DB"),
         "USER": env("POSTGRES_USER"),   
         "PASSWORD": env("POSTGRES_PASSWORD"),
-        "HOST": env("POSTGRES_HOST", default='localhost'),
-        "PORT": env("POSTGRES_SHARED_PORT", default=5432),   # Стандартный порт PostgreSQL
+        "HOST": env("POSTGRES_PROD_HOST", default='localhost'),
+        "PORT": env("POSTGRES_PROD_SHARED_PORT", default=5432),   # Стандартный порт PostgreSQL
     }
 }
 
