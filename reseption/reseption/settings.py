@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-import environ, os
+import environ, sys, os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -35,6 +35,10 @@ CSRF_TRUSTED_ORIGINS = [
     'https://www.' + env('DOMAIN_TRUSTED'),
 ] 
 
+USE_X_FORWARDED_HOST = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -56,6 +60,51 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    
+    # --- ШАГ 1: Определяем форматтеры ---
+    # Форматтер описывает, как будет выглядеть каждая строка лога.
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module}:{lineno} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+
+    # --- ШАГ 2: Определяем обработчики (куда выводить логи) ---
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
+            # Применяем наш новый информативный форматтер
+            'formatter': 'verbose', 
+        },
+    },
+
+    # --- ШАГ 3: Определяем сами логгеры ---
+    'loggers': {
+        # Логгер для самого Django
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO', # Показывает только важные сообщения от Django
+            'propagate': False,
+        },
+        # Логгер для твоего приложения (замени 'main' на имя своего приложения)
+        'main': {
+            'handlers': ['console'],
+            'level': 'DEBUG', # Показывает все сообщения, включая отладочные
+            'propagate': False,
+        },
+    },
+}
+
 
 ROOT_URLCONF = 'reseption.urls'
 
@@ -86,8 +135,8 @@ DATABASES = {
         "NAME": env("POSTGRES_DB"),
         "USER": env("POSTGRES_USER"),   
         "PASSWORD": env("POSTGRES_PASSWORD"),
-        "HOST": env("POSTGRES_PROD_HOST", default='localhost'),
-        "PORT": env("POSTGRES_PROD_SHARED_PORT", default=5432),   # Стандартный порт PostgreSQL
+        "HOST": env("POSTGRES_PROD_HOST"),
+        "PORT": env("POSTGRES_PROD_SHARED_PORT"),   # Стандартный порт PostgreSQL
     }
 }
 
@@ -126,9 +175,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = FORCE_SCRIPT_NAME + 'static/'
+STATIC_URL = FORCE_SCRIPT_NAME + '/static/'
 STATIC_ROOT = BASE_DIR / 'static'
-MEDIA_URL = FORCE_SCRIPT_NAME + 'media/'
+MEDIA_URL = FORCE_SCRIPT_NAME + '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
