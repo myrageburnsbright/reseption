@@ -429,7 +429,7 @@ div#allrecords {padding-left: var(--nullpoint)}
       </div>
       <div class="t396__elem tn-elem tn-elem__5995118721681679719438" data-elem-id="1681679719438" data-elem-type="text" data-field-axisx-res-320-value="center" data-field-axisx-value="right" data-field-axisy-value="top" data-field-container-value="window" data-field-heightunits-value data-field-left-res-320-value="-102" data-field-left-res-480-value="-325" data-field-left-res-640-value="-467" data-field-left-res-960-value="-534" data-field-left-value="-836" data-field-leftunits-value="px" data-field-top-res-320-value="70" data-field-top-res-480-value="89" data-field-top-res-640-value="100" data-field-top-res-960-value="85" data-field-top-value="25" data-field-topunits-value="px" data-field-width-value="101" data-field-widthunits-value="px">
        <div class="tn-atom">
-        <a href="{% url "main:katalog" %}" style="color: inherit" target="_blank">
+        <a href="{% url "main:katalog" %}" style="color: inherit">
          CATALOG
         </a>
        </div>
@@ -910,25 +910,26 @@ div#allrecords {padding-left: var(--nullpoint)}
           <div class="t415__buttons">
            <div class="t-btnwrapper">
             <a class="t415__btn t-btn t-btn_md" data-buttonfieldset="button" href="index.html#popup:main" style="color:#ffffff;background-color:#c97310;border-radius:20px; -moz-border-radius:20px; -webkit-border-radius:20px;" target>
+                <table role="presentation" style="width:100%; height:100%;">
+                    <tr>
+                     <td data-field="buttontitle">
+                      Order an individual calculation
+                     </td>
+                    </tr>
+                   </table>
             </a>
-            <table role="presentation" style="width:100%; height:100%;">
-             <tr>
-              <td data-field="buttontitle">
-               Order an individual calculation
-              </td>
-             </tr>
-            </table>
+            
            </div>
            <div class="t-btnwrapper">
             <a class="t415__btn t415__btn-second t-btn t-btn_md" data-buttonfieldset="button2" href="index.html#rec578851837" style="color:#c97310;border:2px solid #c97310;border-radius:20px; -moz-border-radius:20px; -webkit-border-radius:20px;" target>
-            </a>
-            <table role="presentation" style="width:100%; height:100%;">
-             <tr>
-              <td data-field="buttontitle2">
-               Download catalogs
-              </td>
-             </tr>
-            </table>
+                <table role="presentation" style="width:100%; height:100%;">
+                    <tr>
+                     <td data-field="buttontitle2">
+                      Download catalogs
+                     </td>
+                    </tr>
+                   </table>
+            </a>    
            </div>
           </div>
          </div>
