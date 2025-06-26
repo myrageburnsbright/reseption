@@ -5,7 +5,6 @@
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         background-color: #f4f7f6;
         margin: 0;
-        padding: 20px;
     }
 
     .page-wrapper {
@@ -85,7 +84,7 @@
     }
 
     .product-name {
-        font-size: 20px;
+        font-size: 22px;
         font-weight: 600;
         margin: 0;
         color: #333;
@@ -259,11 +258,9 @@
 </style>
 <div class="page-wrapper">
         
-    <!-- КОЛОНКА С ФИЛЬТРАМИ -->
     <aside class="filters-sidebar">
         <h3>Фильтры</h3>
-        
-        <!-- НОВЫЙ БЛОК ФИЛЬТРА ЦЕН С ПОЛЗУНКОМ -->
+
         <div class="filter-group">
             <label>Цена</label>
             <div class="price-slider-container">
@@ -277,12 +274,12 @@
                     <div class="slider-progress" id="slider-progress"></div>
                     <div class="range-input">
                         <input type="range" class="range-min" id="min-price-slider" 
-                               min="{{ min_price_overall|default:0 }}" 
-                               max="{{ max_price_overall|default:100000 }}" 
+                               min="{{ min_price_overall|default:0 }}"
+                               max="{{ max_price_overall|default:100000 }}"
                                value="{{ current_min_price|default:min_price_overall }}">
-                        <input type="range" class="range-max" id="max-price-slider" 
-                               min="{{ min_price_overall|default:0 }}" 
-                               max="{{ max_price_overall|default:100000 }}" 
+                        <input type="range" class="range-max" id="max-price-slider"
+                               min="{{ min_price_overall|default:0 }}"
+                               max="{{ max_price_overall|default:100000 }}"
                                value="{{ current_max_price|default:max_price_overall }}">
                     </div>
                 </div>
@@ -302,7 +299,6 @@
         </div>
     </aside>
 
-    <!-- КОЛОНКА С ТОВАРАМИ -->
     <main class="product-grid" id="product-grid-id">
         {% for product in products %}
             <div class="product-card">
@@ -315,7 +311,7 @@
                         
                         <div class="push-down">
                         <p class="product-price">$ {{product.base_price}}</p>
-                        <a href="#" class="product-button">To prices and colors</a>
+                        <a href="{% url "main:product_detail" product.id %}" class="product-button">View prices and colors</a>
                         </div>
                 </div>
             </a>
@@ -408,7 +404,7 @@
 
             // Формируем URL для AJAX-запроса
             const url = `/load_more_products/?page=${currentPage}&price_min={{current_min_price}}&price_max={{current_max_price}}`;
-
+            console.log({{current_min_price}})
             // Отправляем фоновый GET-запрос на сервер
             fetch(url)
                 .then(response => response.text()) // Получаем ответ как текст (HTML)
