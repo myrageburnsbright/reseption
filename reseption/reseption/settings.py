@@ -29,7 +29,7 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = False
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1','www.' + env('DOMAIN_TRUSTED'), env('DOMAIN_TRUSTED')]
-FORCE_SCRIPT_NAME = '/reseption'
+FORCE_SCRIPT_NAME = ''
 CSRF_TRUSTED_ORIGINS = [
     'https://' + env('DOMAIN_TRUSTED'),
     'https://www.' + env('DOMAIN_TRUSTED'),
