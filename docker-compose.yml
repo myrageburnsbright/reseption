@@ -10,7 +10,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     ports:
-      - "${POSTGRES_PROD_SHARED_PORT}:5432"
+      - 5432:5432
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -27,7 +27,7 @@ services:
       - db
     restart: always
     ports:
-      - "8000:8000"
+      - 8000:8000
     logging:
       driver: "json-file"
       options:
