@@ -6,6 +6,10 @@ from django.http import HttpResponse
 from decimal import Decimal
 from django.views.generic import DetailView
 
+def robots_txt(request):
+    content = "User-agent: *\nDisallow: /\n"
+    return HttpResponse(content, content_type="text/plain")
+
 # Create your views here.
 def index(request):
     context = {}
