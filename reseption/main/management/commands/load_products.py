@@ -26,12 +26,10 @@ class Command(BaseCommand):
             self.stderr.write(self.style.ERROR(f'ОШИБКА: Не удалось прочитать JSON из файла: {JSON_FILE_PATH}'))
             return
 
-        # Используем транзакцию, чтобы все операции выполнились успешно, либо ни одна
         with transaction.atomic():
             # Очищаем старые данные перед загрузкой (опционально, но рекомендуется для чистоты)
             self.stdout.write('Очистка старых данных...')
             Product.objects.all().delete()
-            # Остальные модели удалятся каскадно благодаря on_delete=models.CASCADE
 
             # Проходим по каждому товару из JSON
             for product_data in all_products_data:

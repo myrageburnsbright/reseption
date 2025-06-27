@@ -26,13 +26,12 @@ class ProductImage(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name='gallery_images', # Allows access via: product.gallery_images.all()
+        related_name='gallery_images',
         verbose_name="Product"
     )
     image_url = models.URLField("Image URL", max_length=1024)
 
     def __str__(self):
-        # Returns the URL as there's no specific name for the image
         return self.image_url
 
     class Meta:
@@ -76,7 +75,7 @@ class OptionVariant(models.Model):
     group = models.ForeignKey(
         OptionGroup,
         on_delete=models.CASCADE,
-        related_name='variants', # Allows access via: group.variants.all()
+        related_name='variants',
         verbose_name="Option Group"
     )
     value = models.CharField("Value", max_length=255)
@@ -87,7 +86,7 @@ class OptionVariant(models.Model):
         "Price Modifier",
         max_digits=10,
         decimal_places=2,
-        null=True, # Price might not be modified
+        null=True,
         blank=True
     )
     is_default = models.BooleanField("Is Default", default=False)
