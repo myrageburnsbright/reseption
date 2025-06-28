@@ -162,7 +162,6 @@
             grid-template-columns: 1fr 3fr;
         }
 
-        /* ИЗМЕНЕНИЕ: Устанавливаем строго 3 колонки для каталога на больших экранах */
         .product-grid {
             grid-template-columns: repeat(3, 1fr);
         }
@@ -259,10 +258,10 @@
 <div class="page-wrapper">
         
     <aside class="filters-sidebar">
-        <h3>Фильтры</h3>
+        <h3>Filters:</h3>
 
         <div class="filter-group">
-            <label>Цена</label>
+            <label>Price</label>
             <div class="price-slider-container">
                 <div class="price-values">
                     <span id="min-price-display"></span>
@@ -284,18 +283,18 @@
                     </div>
                 </div>
             </div>
-            <button id="apply-filters-btn" class="apply-filter-btn">Применить</button>
+            <button id="apply-filters-btn" class="apply-filter-btn">Apply</button>
         </div>
 
         <div class="filter-group">
-            <label for="price-range">Цена</label>
+            <label for="price-range">Price</label>
             <input type="range" id="price-range" name="price" min="0" max="1000">
         </div>
         <div class="filter-group">
-            <label>Категория</label>
-            <div><input type="checkbox" id="cat1"> <label for="cat1">Столы</label></div>
-            <div><input type="checkbox" id="cat2"> <label for="cat2">Стулья</label></div>
-            <div><input type="checkbox" id="cat3"> <label for="cat3">Шкафы</label></div>
+            <label>Category</label>
+            <div><input type="checkbox" id="cat1"> <label for="cat1">Tabels</label></div>
+            <div><input type="checkbox" id="cat2"> <label for="cat2">Chairs</label></div>
+            <div><input type="checkbox" id="cat3"> <label for="cat3">Cabinets</label></div>
         </div>
     </aside>
 
@@ -400,7 +399,7 @@
         loadMoreBtn.addEventListener('click', function() {
             // Блокируем кнопку, чтобы избежать двойных нажатий
             loadMoreBtn.disabled = true;
-            loadMoreBtn.textContent = 'Загрузка...';
+            loadMoreBtn.textContent = 'Loading...';
 
             // Формируем URL для AJAX-запроса
             const url = `/load_more_products/?page=${currentPage}&price_min={{current_min_price}}&price_max={{current_max_price}}`;
@@ -410,7 +409,6 @@
                 .then(response => response.text()) // Получаем ответ как текст (HTML)
                 .then(html => {
                     if (html.trim()) {
-                        // --- НОВЫЙ, НАДЕЖНЫЙ СПОСОБ ДОБАВЛЕНИЯ ЭЛЕМЕНТОВ ---
                             
                         // 1. Используем стандартный DOMParser для разбора строки в полноценный HTML-документ
                         const parser = new DOMParser();
@@ -429,18 +427,18 @@
                         
                         // Снова включаем кнопку
                         loadMoreBtn.disabled = false;
-                        loadMoreBtn.textContent = 'Загрузить еще';
+                        loadMoreBtn.textContent = 'Download more';
                     } else {
                         // Если сервер вернул пустой ответ, значит, товары закончились.
                         // Прячем кнопку навсегда.
-                        loadMoreBtn.textContent = 'Все товары загружены';
+                        loadMoreBtn.textContent = 'All products loaded';
                         loadMoreBtn.style.display = 'none';
                     }
                 })
                 .catch(error => {
-                    console.error('Ошибка при загрузке товаров:', error);
+                    console.error('Error occurs during product card download:', error);
                     loadMoreBtn.disabled = false;
-                    loadMoreBtn.textContent = 'Ошибка загрузки. Попробовать снова?';
+                    loadMoreBtn.textContent = 'Download error. Try again?';
                 });
         });
     });
