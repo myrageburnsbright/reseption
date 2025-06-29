@@ -270,11 +270,11 @@
 <main class="product-container">
     <div class="product-images">
         <div class="main-image-wrapper">
-            <img id="main-product-image" src="{{ main_image_url|default:'https://via.placeholder.com/600x600.png?text=No+Image' }}" alt="{{ product.name }} main image">
+            <img id="main-product-image" src="{{ main_image.url|default:'https://via.placeholder.com/600x600.png?text=No+Image' }}" alt="{{ product.name }} main image">
         </div>
         <div class="thumbnail-gallery">
             {% for image in product.gallery_images.all %}
-            <img class="thumbnail" src="{{ image.image_url }}" data-large-src="{{ image.image_url }}" alt="Thumbnail for {{ product.name }}">
+            <img class="thumbnail" src="{{ image.image.url }}" data-large-src="{{ image.image.url }}" alt="Thumbnail for {{ product.name }}">
             {% endfor %}
         </div>
     </div>
@@ -303,17 +303,17 @@
                                    name="group-{{ group.id }}" 
                                    value="{{ variant.id }}"
                                    data-price-modifier="{{ variant.price_modifier|default:0 }}"
-                                   data-image-url="{{ variant.image_url|default:'' }}"
+                                   {% if variant.image %}data-image-url="{{ variant.image.url|default:'' }}"{% endif %}
                                    {% if variant.is_default %}checked{% endif %}>
                             <label for="variant-{{ variant.id }}">
                                 {# Только для вариантов с картинкой, создаем обертку #}
-                                {% if variant.image_url and group.name != "Chose color" %}
+                                {% if variant.image and group.name != "Chose color" %}
                                 <div class="image-tooltip-wrapper">
-                                    <img src="{{ variant.image_url }}" alt="{{ variant.value }}" class="variant-image-thumb">
+                                    <img src="{{ variant.image.url }}" alt="{{ variant.value }}" class="variant-image-thumb">
                                     <span class="variant-value image-tooltip-text">{{ variant.value }}</span>
                                 </div>
-                                {% elif variant.image_url %}
-                                    <img src="{{ variant.image_url }}" alt="{{ variant.value }}" class="variant-image-thumb">
+                                {% elif variant.image %}
+                                    <img src="{{ variant.image.url }}" alt="{{ variant.value }}" class="variant-image-thumb">
                                     <span class="variant-value variant-value-show">{{ variant.value }}</span>
                                 {% else %}
                                     <span class="variant-value">{{ variant.value }}</span>
@@ -329,7 +329,7 @@
                         {% for variant in group.variants.all %}
                         <option value="{{ variant.id }}"
                                 data-price-modifier="{{ variant.price_modifier|default:0 }}"
-                                data-image-url="{{ variant.image_url|default:'' }}"
+                                {% if variant.image %}data-image-url="{{ variant.image.url|default:'' }}"{% endif %}
                                 {% if variant.is_default %}selected{% endif %}>
                             {{ variant.text|default:variant.value }}
                         </option>

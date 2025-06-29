@@ -29,6 +29,12 @@ class ProductImage(models.Model):
         related_name='gallery_images',
         verbose_name="Product"
     )
+    image = models.ImageField(
+        "Product Image",
+        upload_to='product_gallery/%Y/%m/%d/', 
+        blank=True,
+        null=True
+    )
     image_url = models.URLField("Image URL", max_length=1024)
 
     def __str__(self):
@@ -79,7 +85,12 @@ class OptionVariant(models.Model):
         verbose_name="Option Group"
     )
     value = models.CharField("Value", max_length=255)
-    # For dropdowns, where display text can differ from the value
+    image = models.ImageField(
+        "Variant Image",
+        upload_to='variant_images/%Y/%m/%d/',
+        blank=True,
+        null=True
+    )
     text = models.CharField("Display Text (for select)", max_length=255, blank=True, null=True)
     image_url = models.URLField("Variant Image URL", max_length=1024, blank=True, null=True)
     price_modifier = models.DecimalField(

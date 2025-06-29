@@ -95,6 +95,6 @@ def product_detail(request, product_id):
 
     context = {
         'product': product,
-        'main_image_url': main_image.image_url if main_image else None,
+        'main_image': main_image.image if main_image.image else None,
     }
     return render(request, 'main/product_detail.html', context)

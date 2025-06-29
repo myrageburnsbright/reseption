@@ -1,7 +1,7 @@
 {% for product in products %}
             <div class="product-card">
-                <a href="#">
-                <img src="{{product.gallery_images.first.image_url}}" alt="Товар 1" class="product-image">
+                <a href="{% url "main:product_detail" product.id %}">
+                <img src="{{product.gallery_images.first.image.url}}" alt="{{product.name}}" class="product-image">
                 <div class="product-info">
                     
                         <h4 class="product-name">{{product.name}}</h4>
