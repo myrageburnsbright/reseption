@@ -12,3 +12,4 @@ media/
 .env
 .envdev
 /main_cpy
+save/

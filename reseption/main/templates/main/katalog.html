@@ -21,18 +21,21 @@
     .filters-sidebar {
         background-color: #ffffff;
         padding: 20px;
-        border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         /* Добавляем 'position: sticky', чтобы фильтры "прилипали" при прокрутке на больших экранах */
         position: sticky;
-        top: 20px;
-        align-self: start; /* Важно для правильной работы sticky */
+        top: 100px;
+        background-color: #272727;
+        color: white;
+        box-sizing: border-box;
+        height: fit-content;
     }
 
     .filters-sidebar h3 {
         margin-top: 0;
         border-bottom: 1px solid #eee;
         padding-bottom: 10px;
+        
     }
 
     .filter-group {
@@ -180,7 +183,7 @@
         justify-content: space-between;
         margin-bottom: 15px;
         font-weight: 600;
-        color: #333;
+        color: white;
     }
 
     .slider-track-container {
@@ -239,6 +242,7 @@
     }
 
     .apply-filter-btn {
+        box-sizing: border-box;
         width: 100%;
         padding: 10px;
         margin-top: 20px;
