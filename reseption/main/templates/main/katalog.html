@@ -307,7 +307,7 @@
         {% for product in products %}
             <div class="product-card">
                 <a href="{% url "main:product_detail" product.id %}">
-                <img src="{{product.gallery_images.first.image_url}}" alt="Товар 1" class="product-image">
+                <img src="{{product.gallery_images.first.image.url}}" alt="Товар 1" class="product-image">
                 <div class="product-info">
                     
                         <h4 class="product-name">{{product.name}}</h4>

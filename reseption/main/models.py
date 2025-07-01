@@ -35,7 +35,6 @@ class ProductImage(models.Model):
         blank=True,
         null=True
     )
-    image_url = models.URLField("Image URL", max_length=1024)
 
     def __str__(self):
         return self.image_url
@@ -92,7 +91,6 @@ class OptionVariant(models.Model):
         null=True
     )
     text = models.CharField("Display Text (for select)", max_length=255, blank=True, null=True)
-    image_url = models.URLField("Variant Image URL", max_length=1024, blank=True, null=True)
     price_modifier = models.DecimalField(
         "Price Modifier",
         max_digits=10,
