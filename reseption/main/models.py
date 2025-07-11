@@ -37,7 +37,7 @@ class ProductImage(models.Model):
     )
 
     def __str__(self):
-        return self.image_url
+        return self.image.url
 
     class Meta:
         verbose_name = "Product Image"

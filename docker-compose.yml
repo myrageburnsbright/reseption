@@ -21,8 +21,8 @@ services:
     build: ./reseption
     env_file: .env
     volumes:
-      - static_data:/app/static
-      - media_data:/app/media
+      - /var/www/reseption_static_data:/app/static
+      - /var/www/reseption_media_data:/app/media
     depends_on:
       - db
     restart: always

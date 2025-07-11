@@ -1,5 +1,4 @@
 import os
-import requests
 from urllib.parse import urlparse
 from pathlib import Path
 from django.core.management.base import BaseCommand
