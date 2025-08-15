@@ -1,17 +1,21 @@
-{% for product in products %}
-            <div class="product-card">
-                <a href="{% url "main:product_detail" product.id %}">
-                <img src="{{product.gallery_images.first.image.url}}" alt="{{product.name}}" class="product-image">
-                <div class="product-info">
-                    
-                        <h4 class="product-name">{{product.name}}</h4>
-                        <p class="availabels"> Available in different sizes and colors.</p>
-                        
-                        <div class="push-down">
-                        <p class="product-price">$ {{product.base_price}}</p>
-                        <a href="#" class="product-button">To prices and colors</a>
-                        </div>
-                </div>
-            </a>
-            </div>
-        {% endfor %}
+{% for p in products %}
+  <div class="card">
+    <a class="thumb" href="{% url "main:product_detail" p.id %}" rel="noopener">
+      {% with img=p.gallery_images.first %}
+        {% if img and img.image %}
+          <img src="{{ img.image.url }}" alt="{{ p.name }}">
+        {% else %}
+          <img src="https://picsum.photos/seed/{{ p.id }}/800/450" alt="{{ p.name }}">
+        {% endif %}
+      {% endwith %}
+    </a>
+    <h4><a href="{% url "main:product_detail" p.id %}"  rel="noopener">{{ p.name }}</a></h4>
+    {% if p.description %}
+      <p>{{ p.description|truncatechars:120 }}</p>
+    {% endif %}
+    <div class="price">$<span class="p" data-price="{{ p.base_price|floatformat:0 }}">{{ p.base_price|floatformat:0 }}</span></div>
+    <div class="cta">
+      <a class="btn" href="{% url "main:product_detail" p.id %}" rel="noopener">View</a>
+    </div>
+  </div>
+{% endfor %}
