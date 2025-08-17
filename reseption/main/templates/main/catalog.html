@@ -1,674 +1,403 @@
+{% extends "main/katalogbase.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>RE-SEPTION — Catalog</title>
-<style>
-  :root{
-    --bg:#121212;
-    --bg-2:#1f1f1f;
-    --text:#eaeaea;
-    --muted:#bdbdbd;
-    --ink:#222;
-    --card:#fff;
-    --accent:#d07a2d;
-    --accent-2:#ef8e35;
-    --border:#e6e6e6;
-    --max:1240px;
-    --header-h:84px;
-    --radius:12px;
-    --shadow:0 10px 30px rgba(0,0,0,.08);
-    --z-header:2000;
-    --z-modal:1975;
-    --z-topbar:1900;
-    --z-drawer:1950;
-    --z-float:1800;
-  }
-  *,*:before,*:after{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;
-    font:16px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
-    color:#333;background:#fff;
-    padding-top:var(--header-h);
-  }
-  body.modal-open{overflow:hidden}
-  a{color:inherit;text-decoration:none}
-  img{max-width:100%;display:block}
-  .container{max-width:var(--max);margin:0 auto;padding:0 20px}
-
-  .header{
-    position:fixed;top:0;left:0;right:0;z-index:var(--z-header);
-    background:#191919;color:#fff;border-bottom:1px solid rgba(255,255,255,.08);
-    width:100%;
-  }
-  .header-inner{display:flex;align-items:center;gap:24px;height:var(--header-h)}
-  .logo{display:flex;align-items:center;gap:12px;font-weight:700;letter-spacing:.06em}
-  .logo-mark{width:34px;height:34px;border-radius:6px;background:var(--accent);display:grid;place-items:center;color:#fff;font-weight:800}
-  .nav{display:flex;gap:22px;align-items:center;margin-left:10px}
-  .nav a{color:#d6d6d6;opacity:.9}
-  .nav a:hover{color:#fff}
-  .nav .active{background:var(--accent);color:#fff;padding:10px 16px;border-radius:10px;font-weight:600}
-  .grow{flex:1}
-  .header-cta{display:flex;align-items:center;gap:16px}
-  .phone{display:flex;align-items:center;gap:8px;color:#f0f0f0;opacity:.9;font-weight:500}
-  .btn{appearance:none;border:0;background:var(--accent);color:#fff;padding:12px 16px;border-radius:12px;font-weight:600;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.15) inset;}
-  .btn.secondary{background:#fff;color:#111;border:1px solid #ddd;box-shadow:none}
-  .ic{width:22px;height:22px;display:inline-block;vertical-align:middle}
-  .icon-btn{background:#2a2a2a;border:1px solid rgba(255,255,255,.08);color:#fff;width:42px;height:42px;border-radius:10px;display:grid;place-items:center;cursor:pointer}
-
-  .burger{width:42px;height:42px;border-radius:10px;background:#2a2a2a;border:1px solid rgba(255,255,255,.08);display:none;justify-content:center;align-items:center;gap:6px;flex-direction:column;cursor:pointer}
-  .burger span{height:2px;width:18px;background:#e5e5e5;border-radius:2px;transition:.2s}
-  .burger.open span:nth-child(1){transform:translateY(4px) rotate(45deg);width:20px}
-  .burger.open span:nth-child(2){opacity:0}
-  .burger.open span:nth-child(3){transform:translateY(-4px) rotate(-45deg);width:20px}
-
-  .drawer{position:fixed;inset:0;display:none;z-index:var(--z-drawer)}
-  .drawer.open{display:block}
-  .drawer .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.5)}
-  .drawer .panel{position:absolute;top:var(--header-h);right:0;height:calc(100vh - var(--header-h));width:min(92vw,420px);background:#1f1f1f;color:#eee;box-shadow:-10px 0 30px rgba(0,0,0,.4);overflow:auto}
-  .drawer .panel-inner{padding:22px}
-  .drawer .x{ position:fixed; right:16px; top:calc(var(--header-h) + 12px); width:36px;height:36px; border-radius:8px; border:1px solid rgba(255,255,255,.15); background:rgba(0,0,0,.35); color:#fff; font-size:20px; cursor:pointer; line-height:0; display:grid;place-items:center; backdrop-filter:blur(2px); } .drawer .x:hover{ background:rgba(255,255,255,.12); }
-  .drawer a{display:block;color:#fff;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:18px}
-  .drawer a:last-child{border-bottom:0}
-
-  .hero{background:radial-gradient(1100px 400px at 70% -200px, rgba(208,122,45,.25), transparent 60%), linear-gradient(180deg,#202020, #1b1b1b);color:#fff;position:relative;padding:44px 0 56px}
-  .hero-grid{display:grid;grid-template-columns:1.1fr 1fr;align-items:center;gap:30px}
-  .hero h1{font-size:42px;line-height:1.12;margin:0 0 12px;font-weight:800;letter-spacing:.02em}
-  .hero p{color:#d5d5d5;margin:0 0 24px;max-width:600px}
-  .hero-imgs{position:relative}
-  .hero-imgs .img1{border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
-  .hero-imgs .img2{position:absolute;right:-16px;top:-16px;width:55%;border-radius:14px;border:8px solid rgba(208,122,45,.85);box-shadow:0 20px 40px rgba(0,0,0,.35)}
-
-  .toolbar{padding:18px 0;background:#fff;border-bottom:1px solid var(--border);position:relative;z-index:2}
-  .toolbar .row{display:flex;align-items:center;gap:16px}
-  .search{position:relative;flex:1;max-width:420px}
-  .search input{width:100%;height:44px;border-radius:10px;border:1px solid var(--border);padding:0 42px 0 14px;font-size:15px;outline:0;background:#fafafa}
-  .search .search-ic{position:absolute;right:10px;top:0;bottom:0;margin:auto;width:22px;height:22px;color:#777}
-  .sort{display:flex;align-items:center;gap:8px}
-  .select{border:1px solid var(--border);height:44px;border-radius:10px;padding:0 12px;background:#fafafa;font-size:15px}
-
-  .catalog{padding:28px 0 80px}
-  .layout{display:grid;grid-template-columns:300px 1fr;gap:28px;align-items:start}
-  aside.filters{position:sticky;top:calc(var(--header-h) + 10px);align-self:start;background:#1f1f1f;color:#fff;border-radius:14px;padding:18px 18px 8px;max-height:none;overflow:visible;}
-  .filters h3{margin:8px 0 14px;font-size:16px;font-weight:700}
-  .group{padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08)}
-  .group:last-child{border-bottom:0}
-  .range-wrap{padding:8px 0 2px}
-  .range-line{height:4px;background:#3a3a3a;border-radius:4px;position:relative;margin:18px 6px}
-  .range-line input[type=range]{position:absolute;left:0;right:0;top:-8px;width:100%;appearance:none;background:transparent;height:20px;pointer-events:none}
-  input[type=range]::-webkit-slider-thumb{appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid var(--accent);pointer-events:auto;cursor:pointer}
-  .range-inputs{display:flex;gap:8px;margin:-4px 0 10px}
-  .range-inputs input{width:50%;height:36px;border-radius:8px;border:1px solid #3a3a3a;background:#2a2a2a;color:#fff;padding:0 8px}
-  .muted{color:#cfcfcf;font-size:13px}
-  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px}
-  .chip{background:#2e2e2e;color:#ddd;padding:6px 10px;border-radius:999px;font-size:13px;display:flex;gap:8px;align-items:center}
-  .chip a{color:#bbb;text-decoration:none}
-  .clear-all{color:#ddd;border-bottom:1px dashed #ddd;cursor:pointer;font-size:14px}
-
-  .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:26px}
-  .card{background:#fff;border-radius:14px;box-shadow:var(--shadow);overflow:hidden;border:1px solid var(--border);display:flex;flex-direction:column}
-  .thumb{position:relative;aspect-ratio:16/9;background:#f2f2f2}
-  .thumb img{width:100%;height:100%;object-fit:cover}
-  .badge{position:absolute;right:10px;top:10px;background:#ef4747;color:#fff;font-size:12px;padding:6px 10px;border-radius:999px}
-  .card h4{margin:14px 14px 4px;font-size:20px}
-  .card p{margin:0 14px 10px;color:#666}
-  .price{margin:0 14px 14px;font-weight:800}
-  .cta{margin:0 14px 16px 14px;margin-top:auto}
-  .cta .btn{width:100%;background:var(--accent-2)}
-
-  .m-topbar{display:none;position:sticky;top:var(--header-h);z-index:var(--z-topbar);background:#fff;border-bottom:1px solid var(--border)}
-  .m-topbar .bar{position:relative;display:flex;align-items:center;padding:12px 16px}
-  .m-topbar .filter-open{
-    width:100%;
-    background:#262626;color:#eaeaea;border-radius:10px;padding:12px 48px 12px 14px;
-    display:flex;align-items:center;gap:10px;border:1px solid rgba(255,255,255,.15);
-  }
-  .m-topbar .m-s-icon{
-    position:absolute;right:18px;top:50%;transform:translateY(-50%);
-    width:36px;height:36px;border-radius:8px;
-    display:grid;place-items:center;background:#3a3a3a;color:#fff;
-    border:1px solid rgba(255,255,255,.15);
-    margin-right: 5px;
-  }
-  .m-topbar .filter-open.is-active,
-  .m-topbar .m-s-icon.is-active{ background:#3a3a3a }
-
-  .m-search-panel{display:none;padding:8px 0 0}
-  .m-search-panel input{
-    width:100%;height:44px;border-radius:10px;border:1px solid #4a4a4a;
-    padding:0 12px;background:#2a2a2a;color:#eee;outline:none
-  }
-  .m-search-panel input::placeholder{color:#9e9e9e}
-
-  .m-filters-panel{
-    display:none;margin:0 16px 14px;background:#222;color:#eee;border-radius:12px;
-    border:1px solid rgba(255,255,255,.12);padding:14px 16px;box-shadow:0 10px 30px rgba(0,0,0,.12)
-  }
-  .m-filters-panel .accord{border-top:1px solid rgba(255,255,255,.12)}
-  .m-filters-panel .accord:first-child{border-top:0}
-  .m-filters-panel .accord .head{display:flex;align-items:center;justify-content:space-between;padding:12px 0;cursor:pointer}
-  .m-filters-panel .accord .body{display:none;padding:0 0 12px}
-  .m-filters-panel .accord.open .body{display:block}
-  .m-filters-panel .price-ok{height:36px;padding:0 12px;border-radius:8px;border:1px solid #555;background:#2a2a2a;color:#eee}
-
-  .float{position:fixed;right:16px;bottom:16px;width:56px;height:56px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;box-shadow:0 10px 30px rgba(208,122,45,.45);z-index:var(--z-float)}
-  .float svg{width:28px;height:28px}
-  .totop{position:fixed;left:16px;bottom:16px;width:50px;height:50px;border-radius:50%;border:2px solid var(--accent);color:var(--accent);background:#fff;display:grid;place-items:center;z-index:var(--z-float);opacity:0;transform:translateY(10px);pointer-events:none;transition:.2s}
-  .totop.show{opacity:1;transform:none;pointer-events:auto}
-
-
-  .m-search-panel,.m-filters-panel{
-    --bg: #121212;
---bg-2: #1f1f1f;
---text: #eaeaea;
---muted: #bdbdbd;
---ink: #222;
---card: #fff;
---accent: #d07a2d;
---accent-2: #ef8e35;
---border: #e6e6e6;
-
-border: 1px solid #4a4a4a;
-background: #2a2a2a;
-color: #eee;
-  }
-
-  @media (max-width:1100px){ .grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
-  @media (max-width:960px){
-    .nav{display:none}
-    .burger{display:flex}
-    .header-cta .phone{display:none}
-    .hero-grid{grid-template-columns:1fr}
-    .hero-imgs .img2{right:0;top:-10px;width:58%}
-    .layout{grid-template-columns:1fr}
-    aside.filters{display:none}
-    .m-topbar{display:block}
-    .toolbar{display:none}
-  }
-  @media (max-width:620px){ .grid{grid-template-columns:1fr} }
-</style>
-</head>
-<body>
-
-<header class="header" id="siteHeader">
-  <div class="container header-inner">
-    <div class="logo">
-        
-      <div class="logo-mark">R</div>
-      <a href="{% url "main:index" %}">
-      <div>RE-SEPTION</div>
-        </a>
-    </div>
-    <nav class="nav" aria-label="Primary">
-      <a href="#">About</a>
-      <a href="#catalog">Catalog</a>
-      <a href="#">Turn‑key Solutions</a>
-      <a href="#">Niche Solutions</a>
-      <a class="active" href="#catalog">Shop</a>
-    </nav>
-    <div class="grow"></div>
-    <div class="header-cta">
-      <div class="phone">
-        <svg class="ic" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <circle cx="12" cy="12" r="11" fill="var(--accent)"></circle>
-          <path d="M16.6 14.9l-1.9-.8a1 1 0 0 0-1.1.2l-.9.9a12.7 12.7 0 0 1-4-4l.9-.9a1 1 0 0 0 .2-1.1l-.8-1.9a1 1 0 0 0-1.1-.6l-1.8.3a1 1 0 0 0-.8 1c.3 6.1 5.1 10.9 11.2 11.2a1 1 0 0 0 1-.8l.3-1.8a1 1 0 0 0-.6-1.1z" fill="#fff"/>
-        </svg>
-        +1 (555) 105‑6037
-      </div>
-      <button class="btn secondary">Request a Call</button>
-      <button class="icon-btn" id="desktop-search-toggle" title="Search">
-        <svg class="ic" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-      </button>
-      <button class="burger" id="burger" aria-label="Open menu" aria-controls="navDrawer" aria-expanded="false"><span></span><span></span><span></span></button>
-    </div>
-  </div>
-</header>
-
-<div class="drawer" id="navDrawer" aria-hidden="true" role="dialog" aria-modal="true">
-  <div class="backdrop" data-close="drawer" tabindex="-1"></div>
-  <button class="x" data-close="drawer" aria-label="Close">✕</button>
-  <aside class="panel">
-    <div class="panel-inner">
-      <div class="logo" style="margin-bottom:14px"><div class="logo-mark">R</div><div>RE-SEPTION</div></div>
-      <a href="#">About</a>
-      <a href="#catalog">Catalog</a>
-      <a href="#">Turn‑key Solutions</a>
-      <a href="#">Niche Solutions</a>
-      <a href="#">FAQ</a>
-      <a href="#">Contacts</a>
-      <div style="margin:22px 0 10px;color:#ddd">Casework for business — in stock and made to order</div>
-      <div style="display:flex;gap:10px;margin:12px 0">
-        <span style="display:inline-grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#2a2a2a">🟢</span>
-        <span style="display:inline-grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#2a2a2a">📨</span>
-        <span style="display:inline-grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#2a2a2a">VK</span>
-      </div>
-      <button class="btn" style="width:100%;margin-top:10px">Request a Call</button>
-      <div style="margin-top:10px;color:#bbb">+1 (555) 105‑6037</div>
-    </div>
-  </aside>
-</div>
-
+{% block content %}
 <section class="hero">
   <div class="container hero-grid">
     <div>
       <h1>Ready-made solutions for your business</h1>
       <p>We offer a wide selection of commercial furniture. Choose a ready-made solution or request a custom project designed for your niche.</p>
-      <a class="btn" href="#catalog">Browse catalog</a>
+      <a class="btn" href="{% url "main:catalog" %}">Browse catalog</a>
     </div>
     <div class="hero-imgs">
       <div class="img1">
-        <img src="https://images.unsplash.com/photo-1616594090150-9aa37f3dfcc4?q=80&w=1200&auto=format&fit=crop" alt="">
       </div>
-      <img class="img2" src="https://images.unsplash.com/photo-1582582621959-48d2896f0d25?q=80&w=900&auto=format&fit=crop" alt="">
+      <img class="img2" src="{% static "/img/katalogbase/image_2066.png" %}" alt="">
+      <img class="img3" src="{% static "/img/katalogbase/image_2065.png" %}" alt="">
     </div>
   </div>
 </section>
-
 <section class="toolbar">
-  <div class="container">
-    <div class="row">
-      <div class="search">
-        <input id="search-desktop" type="search" placeholder="Search" value="{{ q|default_if_none:'' }}">
-        <svg class="search-ic" id="search-ic-svg" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <div class="container">
+      <div class="row">
+        <div class="search">
+          <input id="search-desktop" type="search" placeholder="Search" value="{{ q|default_if_none:'' }}">
+          <svg class="search-ic" id="search-ic-svg" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </div>
+        <div class="sort">
+          <label class="muted">Sort by:</label>
+          <select class="select" id="sort-select">
+            <option value="default" {% if sort == 'default' %}selected{% endif %}>Default order</option>
+            <option value="price-asc" {% if sort == 'price-asc' %}selected{% endif %}>Price: Low to High</option>
+            <option value="price-desc" {% if sort == 'price-desc' %}selected{% endif %}>Price: High to Low</option>
+            <option value="name-asc" {% if sort == 'name-asc' %}selected{% endif %}>Name: A–Z</option>
+            <option value="name-desc" {% if sort == 'name-desc' %}selected{% endif %}>Name: Z–A</option>
+          </select>
+        </div>
       </div>
-      <div class="sort">
-        <label class="muted">Sort by:</label>
-        <select class="select" id="sort-select">
-          <option value="default" {% if sort == 'default' %}selected{% endif %}>Default order</option>
-          <option value="price-asc" {% if sort == 'price-asc' %}selected{% endif %}>Price: Low to High</option>
-          <option value="price-desc" {% if sort == 'price-desc' %}selected{% endif %}>Price: High to Low</option>
-          <option value="name-asc" {% if sort == 'name-asc' %}selected{% endif %}>Name: A–Z</option>
-          <option value="name-desc" {% if sort == 'name-desc' %}selected{% endif %}>Name: Z–A</option>
-        </select>
+    </div>
+  </section>
+  
+  <div class="m-topbar" id="mTopbar">
+    <div class="container">
+      <div class="bar">
+        <button class="filter-open" id="openFilters" aria-expanded="false">
+          <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M3 7h18M6 12h12M10 17h4" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+          Filters
+        </button>
+        <button class="m-s-icon" id="openSearch" aria-label="Search">
+          <svg class="ic" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+  
+      <div class="m-filters-panel" id="mFiltersPanel" style="display:none">
+        <div class="m-search-row">
+          <input id="search-mobile" type="search" placeholder="Search" value="{{ q|default_if_none:'' }}">
+          <button class="m-search-go" id="searchGoMobile" aria-label="Search">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+  
+        <div class="accord" data-acc="sort">
+          <div class="head">
+            <div class="muted" style="font-size:14px">Sort</div>
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="body">
+            <div class="list" style="display:grid;gap:8px">
+              <label class="check"><input type="radio" name="m-sort" value="default" {% if sort == 'default' %}checked{% endif %}> Default order</label>
+              <label class="check"><input type="radio" name="m-sort" value="price-asc" {% if sort == 'price-asc' %}checked{% endif %}> Price: Low to High</label>
+              <label class="check"><input type="radio" name="m-sort" value="price-desc" {% if sort == 'price-desc' %}checked{% endif %}> Price: High to Low</label>
+              <label class="check"><input type="radio" name="m-sort" value="name-asc" {% if sort == 'name-asc' %}checked{% endif %}> Name: A–Z</label>
+              <label class="check"><input type="radio" name="m-sort" value="name-desc" {% if sort == 'name-desc' %}checked{% endif %}> Name: Z–A</label>
+            </div>
+          </div>
+        </div>
+  
+        <div class="accord" data-acc="price">
+          <div class="head">
+            <div class="muted" style="font-size:14px">Price</div>
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="body">
+            <div class="range-inputs">
+              <input type="text" class="price-min" id="priceMinMobile" inputmode="numeric" aria-label="Min price" value="{{ pmin }}">
+              <input type="text" class="price-max" id="priceMaxMobile" inputmode="numeric" aria-label="Max price" value="{{ pmax }}">
+              <button class="price-ok" id="priceOk">OK</button>
+            </div>
+          </div>
+        </div>
+  
+        <div class="accord" data-acc="section">
+          <div class="head">
+            <div class="muted" style="font-size:14px">Sections</div>
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="body">
+            <div class="muted">No sections yet</div>
+          </div>
+        </div>
+  
+        <div class="accord" data-acc="colors">
+          <div class="head">
+            <div class="muted" style="font-size:14px">Colors</div>
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="body">
+            <div class="list" id="colorListMobile" style="display:grid;gap:8px">
+              {% for c in colors_all %}
+                <label class="check" style="display:flex;gap:8px;align-items:center">
+                  <input type="checkbox" class="color-check" value="{{ c }}" {% if c in selected_colors %}checked{% endif %}>
+                  <span>{{ c }}</span>
+                </label>
+              {% empty %}
+                <div class="muted">No colors defined</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+  
+        <div style="padding-top:10px">
+          <div class="muted" style="font-size:14px;margin-bottom:6px">Applied filters</div>
+          <div class="chips">
+            {% if pmin > price_min_all %}
+              <span class="chip">≥ ${{ pmin|floatformat:0 }} <a href="?{{ qs_remove_pmin }}" aria-label="Remove">×</a></span>
+            {% endif %}
+            {% if pmax < price_max_all %}
+              <span class="chip">≤ ${{ pmax|floatformat:0 }} <a href="?{{ qs_remove_pmax }}" aria-label="Remove">×</a></span>
+            {% endif %}
+            {% for c, qs_rm in selected_colors_with_qs %}
+              <span class="chip">{{ c }} <a href="?{{ qs_rm }}" aria-label="Remove color">×</a></span>
+            {% endfor %}
+          </div>
+          <a class="clear-all" href="?{{ qs_clear_all }}">Clear all</a>
+        </div>
       </div>
     </div>
   </div>
-</section>
-
-<div class="m-topbar" id="mTopbar">
-  <div class="container">
-    <div class="bar">
-      <button class="filter-open" id="openFilters" aria-expanded="false">
-        <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M3 7h18M6 12h12M10 17h4" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
-        Фильтры
-      </button>
-      <button class="m-s-icon" id="openSearch" aria-label="Search">
-        <svg class="ic" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-      </button>
-    </div>
-
-    <!-- Панель фильтров (вместо модального окна). Изначально скрыта. -->
-    <div class="m-filters-panel" id="mFiltersPanel" style="display:none">
-      <div class="accord" data-acc="sort">
-        <div class="head">
-          <div class="muted" style="font-size:14px">Сортировка</div>
-          <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        </div>
-        <div class="body">
-          <div class="list" style="display:grid;gap:8px">
-            <label class="check"><input type="radio" name="m-sort" value="default" {% if sort == 'default' %}checked{% endif %}> Порядок: по умолчанию</label>
-            <label class="check"><input type="radio" name="m-sort" value="price-asc" {% if sort == 'price-asc' %}checked{% endif %}> Цена: по возрастанию</label>
-            <label class="check"><input type="radio" name="m-sort" value="price-desc" {% if sort == 'price-desc' %}checked{% endif %}> Цена: по убыванию</label>
-            <label class="check"><input type="radio" name="m-sort" value="name-asc" {% if sort == 'name-asc' %}checked{% endif %}> Название: A—Я</label>
-            <label class="check"><input type="radio" name="m-sort" value="name-desc" {% if sort == 'name-desc' %}checked{% endif %}> Название: Я—A</label>
+  
+  <section id="catalog" class="catalog">
+    <div class="container layout">
+      <aside class="filters" id="sidebar" aria-label="Filters">
+        <h3>Filters</h3>
+  
+        <div class="group">
+          <div class="muted">Price</div>
+          <div class="range-wrap">
+            <div class="range-inputs">
+              <input type="text" class="price-min" id="priceMinDesktop" inputmode="numeric" value="{{ pmin }}">
+              <input type="text" class="price-max" id="priceMaxDesktop" inputmode="numeric" value="{{ pmax }}">
+            </div>
+            <div class="range-line">
+              <input type="range" min="{{ price_min_all }}" max="{{ price_max_all }}" value="{{ pmin }}" class="slider slider-min" id="sliderMinDesktop" aria-label="Min price">
+              <input type="range" min="{{ price_min_all }}" max="{{ price_max_all }}" value="{{ pmax }}" class="slider slider-max" id="sliderMaxDesktop" aria-label="Max price">
+            </div>
           </div>
         </div>
-      </div>
-
-      <div class="accord" data-acc="price">
-        <div class="head">
-          <div class="muted" style="font-size:14px">Цена</div>
-          <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        </div>
-        <div class="body">
-          <div class="range-inputs">
-            <input type="text" class="price-min" id="priceMinMobile" inputmode="numeric" aria-label="Min price" value="{{ pmin }}">
-            <input type="text" class="price-max" id="priceMaxMobile" inputmode="numeric" aria-label="Max price" value="{{ pmax }}">
-            <button class="price-ok" id="priceOk">OK</button>
+  
+        <div class="group">
+          <div class="muted">Colors</div>
+          <div class="list" id="colorListDesktop" style="display:grid;gap:8px;padding:8px 0 12px">
+            {% for c in colors_all %}
+              <label class="check" style="display:flex;gap:8px;align-items:center">
+                <input type="checkbox" class="color-check" value="{{ c }}" {% if c in selected_colors %}checked{% endif %}>
+                <span>{{ c }}</span>
+              </label>
+            {% empty %}
+              <div class="muted">No colors defined</div>
+            {% endfor %}
           </div>
         </div>
-      </div>
-
-      <div class="accord" data-acc="section">
-        <div class="head">
-          <div class="muted" style="font-size:14px">Раздел</div>
-          <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        </div>
-        <div class="body">
-          <div class="muted">Пока пусто</div>
-        </div>
-      </div>
-
-      <!-- Панель поиска внутри темной панели -->
-      
-    </div>
-    <div class="m-search-panel" id="mSearchPanel" style="display:none; margin-top:10px; ">
-        <input id="search-mobile" type="search" placeholder="Поиск" value="{{ q|default_if_none:'' }}">
-        <svg class="search-ic" id="search-ic-mobile" viewBox="0 0 24 24" fill="none" style="cursor:pointer; width:24px; height:24px;">
-            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6"/>
-            <path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-          </svg>
-      </div>
-  </div>
-</div>
-
-<section id="catalog" class="catalog">
-  <div class="container layout">
-    <aside class="filters" id="sidebar" aria-label="Filters">
-      <h3>Filters</h3>
-
-      <div class="group">
-        <div class="muted">Price</div>
-        <div class="range-wrap">
-          <div class="range-inputs">
-            <input type="text" class="price-min" id="priceMinDesktop" inputmode="numeric" value="{{ pmin }}">
-            <input type="text" class="price-max" id="priceMaxDesktop" inputmode="numeric" value="{{ pmax }}">
-          </div>
-          <div class="range-line">
-            <input type="range" min="{{ price_min_all }}" max="{{ price_max_all }}" value="{{ pmin }}" class="slider slider-min" id="sliderMinDesktop" aria-label="Min price">
-            <input type="range" min="{{ price_min_all }}" max="{{ price_max_all }}" value="{{ pmax }}" class="slider slider-max" id="sliderMaxDesktop" aria-label="Max price">
+  
+        <div class="group">
+          <div class="muted">Sections</div>
+          <div class="list" style="display:grid;gap:8px;padding:8px 0 12px">
+            <div class="muted">No sections yet</div>
           </div>
         </div>
-      </div>
-
-      <div class="group">
-        <div class="muted">Colors</div>
-        <div class="list" id="colorListDesktop" style="display:grid;gap:8px;padding:8px 0 12px">
-          {% for c in colors_all %}
-            <label class="check" style="display:flex;gap:8px;align-items:center">
-              <input type="checkbox" class="color-check" value="{{ c }}" {% if c in selected_colors %}checked{% endif %}>
-              <span>{{ c }}</span>
-            </label>
-          {% empty %}
-            <div class="muted">No colors defined</div>
-          {% endfor %}
+  
+        <div class="group">
+          <div class="muted">You selected</div>
+          <div class="chips" id="chipsDesktop">
+            {% if pmin > price_min_all %}
+              <span class="chip">≥ ${{ pmin|floatformat:0 }} <a href="?{{ qs_remove_pmin }}" aria-label="Remove">×</a></span>
+            {% endif %}
+            {% if pmax < price_max_all %}
+              <span class="chip">≤ ${{ pmax|floatformat:0 }} <a href="?{{ qs_remove_pmax }}" aria-label="Remove">×</a></span>
+            {% endif %}
+            {% for c, qs_rm in selected_colors_with_qs %}
+              <span class="chip">{{ c }} <a href="?{{ qs_rm }}" aria-label="Remove color">×</a></span>
+            {% endfor %}
+          </div>
+          <a class="clear-all" href="?{{ qs_clear_all }}" id="clearDesktop">Clear all</a>
         </div>
-      </div>
-
-      <div class="group">
-        <div class="muted">You selected</div>
-        <div class="chips" id="chipsDesktop">
+      </aside>
+  
+      <main>
+        <div class="chips" id="chipsInline" style="margin:0 0 18px">
           {% if pmin > price_min_all %}
-            <span class="chip">≥ ${{ pmin|floatformat:0 }} <a href="?{{ qs_remove_pmin }}" aria-label="Remove">✕</a></span>
+            <span class="chip">≥ ${{ pmin|floatformat:0 }} <a href="?{{ qs_remove_pmin }}" aria-label="Remove">×</a></span>
           {% endif %}
           {% if pmax < price_max_all %}
-            <span class="chip">≤ ${{ pmax|floatformat:0 }} <a href="?{{ qs_remove_pmax }}" aria-label="Remove">✕</a></span>
+            <span class="chip">≤ ${{ pmax|floatformat:0 }} <a href="?{{ qs_remove_pmax }}" aria-label="Remove">×</a></span>
           {% endif %}
           {% for c, qs_rm in selected_colors_with_qs %}
-            <span class="chip">{{ c }} <a href="?{{ qs_rm }}" aria-label="Remove color">✕</a></span>
+            <span class="chip">{{ c }} <a href="?{{ qs_rm }}" aria-label="Remove color">×</a></span>
           {% endfor %}
         </div>
-        <a class="clear-all" href="?{{ qs_clear_all }}" id="clearDesktop">Clear all</a>
-      </div>
-    </aside>
-
-    <main>
-      <div class="chips" id="chipsInline" style="margin:0 0 18px">
-        {% if pmin > price_min_all %}
-          <span class="chip">≥ ${{ pmin|floatformat:0 }} <a href="?{{ qs_remove_pmin }}" aria-label="Remove">✕</a></span>
-        {% endif %}
-        {% if pmax < price_max_all %}
-          <span class="chip">≤ ${{ pmax|floatformat:0 }} <a href="?{{ qs_remove_pmax }}" aria-label="Remove">✕</a></span>
-        {% endif %}
-        {% for c, qs_rm in selected_colors_with_qs %}
-          <span class="chip">{{ c }} <a href="?{{ qs_rm }}" aria-label="Remove color">✕</a></span>
-        {% endfor %}
-      </div>
-
-      <div class="grid" id="grid">
-        {% include 'main/_product_cards.html' %}
-      </div>
-
-      {% if not products %}
-        <div id="empty" class="empty">No items found</div>
-      {% endif %}
-
-      {% if has_more %}
-        <div style="display:flex;justify-content:center;margin-top:24px">
-          <button id="loadMoreBtn" class="btn secondary" data-next-page="{{ next_page }}">Load more</button>
+  
+        <div class="grid" id="grid">
+          {% include 'main/_product_cards.html' %}
         </div>
-      {% endif %}
-    </main>
-  </div>
-</section>
-
-<a href="#top" class="totop" id="toTop" aria-label="Back to top">
-  <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M12 5l7 7M12 5L5 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-</a>
-
-<a href="tel:+15551056037" class="float" aria-label="Call us">
-  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-    <circle cx="12" cy="12" r="12" fill="currentColor"></circle>
-    <path d="M16.6 14.9l-1.9-.8a1 1 0 0 0-1.1.2l-.9.9a12.7 12.7 0 0 1-4-4l.9-.9a1 1 0 0 0 .2-1.1l-.8-1.9a1 1 0 0 0-1.1-.6l-1.8.3a1 1 0 0 0-.8 1c.3 6.1 5.1 10.9 11.2 11.2a1 1 0 0 0 1-.8l.3-1.8a1 1 0 0 0-.6-1.1z" fill="#fff"/>
-  </svg>
-</a>
-
-<script>
-(function(){
-  const $ = (s,root=document)=>root.querySelector(s);
-  const $$ = (s,root=document)=>Array.from(root.querySelectorAll(s));
-
-  // Цены на карточках
-  $$('.price .p').forEach(span=>{
-    const raw = span.dataset.price || span.textContent;
-    const n = parseInt(String(raw).replace(/[^\d]/g,''),10) || 0;
-    span.textContent = n.toLocaleString('en-US');
-  });
-
-  // Query helpers
-  function buildUrl(updates){
-    const url = new URL(window.location.href);
-    const params = url.searchParams;
-    Object.entries(updates).forEach(([k,v])=>{
-      if(Array.isArray(v)){
-        params.delete(k);
-        v.forEach(val => params.append(k, val));
-      }else{
-        if(v === null || v === undefined || v === '') params.delete(k);
-        else params.set(k, v);
-      }
-    });
-    params.delete('page');
-    url.search = params.toString();
-    return url.toString();
-  }
-  function applyAndGo(updates){ window.location.href = buildUrl(updates); }
-
-  // Поиск
-  const sDesktop = $('#search-desktop');
-  const sMobile = $('#search-mobile');
+  
+        {% if not products %}
+          <div id="empty" class="empty">No items found</div>
+        {% endif %}
+  
+        {% if has_more %}
+          <div style="display:flex;justify-content:center;margin-top:24px">
+            <button id="loadMoreBtn" class="btn secondary" data-next-page="{{ next_page }}">Load more</button>
+          </div>
+        {% endif %}
+      </main>
+    </div>
+  </section>
 
 
-  function debounce(fn,ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms); }; }
-  const onSearchInput = debounce(val=> applyAndGo({ q: val || null }), 400);
-
-  document.addEventListener('DOMContentLoaded', function () {
-    const searchIcon = document.getElementById('search-ic-svg');
-    
-      searchIcon.addEventListener('click', function () {
-        applyAndGo({ q: sDesktop.value });
-      });
-    
-  });
-
-  [sDesktop,sMobile].forEach(inp=>{
-    if(!inp) return;
-    
-    inp.addEventListener('keydown', e=>{
-      if(e.key==='Enter'){ e.preventDefault(); applyAndGo({ q: e.target.value.trim() || null }); }
-    });
-  });
-  $('#desktop-search-toggle')?.addEventListener('click', ()=> sDesktop?.focus());
-
-  // Сортировка
-  $('#sort-select')?.addEventListener('change', e=> applyAndGo({ sort: e.target.value || null }));
-  $$('input[name="m-sort"]').forEach(r=>{
-    r.addEventListener('change', e=> applyAndGo({ sort: e.target.value || null }));
-  });
-
-  // Цена
-  const priceMinAll = {{ price_min_all|default:0 }};
-  const priceMaxAll = {{ price_max_all|default:0 }};
-  function readNum(v){ return parseInt(String(v||'').replace(/[^\d]/g,''),10) || 0; }
-  function clampPair(a,b){
-    a = Math.max(priceMinAll, Math.min(a, priceMaxAll));
-    b = Math.max(priceMinAll, Math.min(b, priceMaxAll));
-    if(a>b){ const t=a; a=b; b=t; }
-    return [a,b];
-  }
-  function formatUS(n){ return (n||0).toLocaleString('en-US'); }
-
-  const minI = $('#priceMinDesktop');
-  const maxI = $('#priceMaxDesktop');
-  const minS = $('#sliderMinDesktop');
-  const maxS = $('#sliderMaxDesktop');
-
-  function syncPriceInputsDisplay(a,b,skip){
-    if(minI && skip !== minI) minI.value = formatUS(a);
-    if(maxI && skip !== maxI) maxI.value = formatUS(b);
-    if(minS) minS.value = a;
-    if(maxS) maxS.value = b;
-  }
-  syncPriceInputsDisplay({{ pmin }}, {{ pmax }});
-  function applyPrice(a,b){ applyAndGo({ pmin:a, pmax:b }); }
-
-  minI?.addEventListener('input', e=>{
-    const [a,b] = clampPair(readNum(e.target.value), readNum(maxI?.value));
-    syncPriceInputsDisplay(a,b, e.target);
-  });
-  maxI?.addEventListener('input', e=>{
-    const [a,b] = clampPair(readNum(minI?.value), readNum(e.target.value));
-    syncPriceInputsDisplay(a,b, e.target);
-  });
-  const commitDesktopPrice = ()=>{
-    const [a,b] = clampPair(readNum(minI?.value), readNum(maxI?.value));
-    applyPrice(a,b);
-  };
-  minI?.addEventListener('blur', commitDesktopPrice);
-  maxI?.addEventListener('blur', commitDesktopPrice);
-  [minI,maxI].forEach(i=> i?.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); commitDesktopPrice(); }}));
-
-  minS?.addEventListener('input', e=>{
-    const [a,b] = clampPair(readNum(e.target.value), readNum(maxS?.value));
-    syncPriceInputsDisplay(a,b);
-  });
-  maxS?.addEventListener('input', e=>{
-    const [a,b] = clampPair(readNum(minS?.value), readNum(e.target.value));
-    syncPriceInputsDisplay(a,b);
-  });
-  minS?.addEventListener('change', ()=> commitDesktopPrice());
-  maxS?.addEventListener('change', ()=> commitDesktopPrice());
-
-  // Mobile price OK
-  const minM = $('#priceMinMobile');
-  const maxM = $('#priceMaxMobile');
-  $('#priceOk')?.addEventListener('click', ()=>{
-    const [a,b] = clampPair(readNum(minM?.value), readNum(maxM?.value));
-    applyPrice(a,b);
-  });
-
-  // Цвета (десктоп)
-  function applyColorsFromDocument(){
-    const vals = $$('input.color-check:checked').map(i=> i.value);
-    applyAndGo({ color: vals });
-  }
-  $$('.color-check').forEach(chk=> chk.addEventListener('change', applyColorsFromDocument));
-
-  // Mobile Topbar toggles
-  const mFiltersPanel = $('#mFiltersPanel');
-  const mSearchPanel = $('#mSearchPanel');
-  const openFiltersBtn = $('#openFilters');
-  const openSearchBtn = $('#openSearch');
-
-  openFiltersBtn?.addEventListener('click', ()=>{
-    const open = mFiltersPanel.style.display !== 'block';
-    mFiltersPanel.style.display = open ? 'block' : 'none';
-    openFiltersBtn.classList.toggle('is-active', open);
-    openFiltersBtn.setAttribute('aria-expanded', String(open));
-  });
-
-  openSearchBtn?.addEventListener('click', ()=>{
-    const open = mSearchPanel.style.display !== 'flex';
-    mSearchPanel.style.display = open ? 'flex' : 'none';
-    openSearchBtn.classList.toggle('is-active', open);
-    if(open){ setTimeout(()=> $('#search-mobile')?.focus(), 60); }
-  });
-
-  // Аккордеоны в мобильной панели
-  $$('.m-filters-panel .accord .head').forEach(head=>{
-    head.addEventListener('click', ()=>{
-      head.parentElement.classList.toggle('open');
-    });
-  });
-
-  // Drawer (burger)
-  const drawer = $('#navDrawer');
-  const burger = $('#burger');
-  burger?.addEventListener('click', ()=>{
-    const open = !drawer.classList.contains('open');
-    drawer.classList.toggle('open', open);
-    drawer.setAttribute('aria-hidden', String(!open));
-    burger.setAttribute('aria-expanded', String(open));
-    burger.classList.toggle('open', open);
-  });
-  drawer?.addEventListener('click', e=>{
-    if(e.target.dataset.close==='drawer'){ drawer.classList.remove('open'); burger.classList.remove('open'); }
-  });
-
-  // To top
-  const toTop = $('#toTop');
-  window.addEventListener('scroll', ()=>{ toTop.classList.toggle('show', window.scrollY>400); });
-  toTop?.addEventListener('click', (e)=>{ e.preventDefault(); window.scrollTo({top:0, behavior:'smooth'}); });
-
-  // Header height sync
-  function syncHeaderH(){
-    const h = $('#siteHeader').getBoundingClientRect().height;
-    document.documentElement.style.setProperty('--header-h', h+'px');
-    document.body.style.paddingTop = h+'px';
-  }
-  window.addEventListener('resize', syncHeaderH);
-  window.addEventListener('load', syncHeaderH);
-  syncHeaderH();
-
-  // Load more via AJAX
-  const loadMoreBtn = $('#loadMoreBtn');
-  const grid = $('#grid');
-  function getCurrentParams(){ return new URLSearchParams(window.location.search); }
-  loadMoreBtn?.addEventListener('click', async ()=>{
-    const next = loadMoreBtn.dataset.nextPage;
-    if(!next) return;
-    const params = getCurrentParams();
-    params.set('page', next);
-    const url = new URL('{{ request.build_absolute_uri }}', window.location.origin);
-    url.pathname = '{{ request.path|cut:"catalog/" }}catalog/load-more/'.replace('//','/');
-    url.search = params.toString();
-
-    loadMoreBtn.disabled = true;
-    try{
-      const res = await fetch(url.toString(), { headers: { 'X-Requested-With':'XMLHttpRequest' }});
-      const data = await res.json();
-      grid.insertAdjacentHTML('beforeend', data.html);
-      if(data.has_more){
-        loadMoreBtn.dataset.nextPage = data.next_page;
-        loadMoreBtn.disabled = false;
-      }else{
-        loadMoreBtn.remove();
-      }
-      $$('.price .p', grid).forEach(span=>{
-        if(span.dataset._fmt) return;
-        const n = parseInt(String(span.dataset.price||span.textContent).replace(/[^\d]/g,''),10)||0;
+{% endblock content %}
+{% block script %}
+    (function(){
+      // Format prices
+      $$('.price .p').forEach(span=>{
+        const raw = span.dataset.price || span.textContent;
+        const n = parseInt(String(raw).replace(/[^\d]/g,''),10) || 0;
         span.textContent = n.toLocaleString('en-US');
-        span.dataset._fmt = '1';
       });
-    }catch(e){
-      console.error(e);
-      loadMoreBtn.disabled = false;
-    }
-  });
-})();
-</script>
-</body>
-</html>
+    
+      // Query helpers
+      function buildUrl(updates){
+        const url = new URL(window.location.href);
+        const params = url.searchParams;
+        Object.entries(updates).forEach(([k,v])=>{
+          if(Array.isArray(v)){
+            params.delete(k);
+            v.forEach(val => params.append(k, val));
+          }else{
+            if(v === null || v === undefined || v === '') params.delete(k);
+            else params.set(k, v);
+          }
+        });
+        params.delete('page'); // reset pagination
+        url.search = params.toString();
+        return url.toString();
+      }
+      function applyAndGo(updates){ window.location.href = buildUrl(updates); }
+    
+      // Search
+      const sDesktop = $('#search-desktop');
+      const sMobile  = $('#search-mobile');
+    
+      [sDesktop,sMobile].forEach(inp=>{
+        if(!inp) return;
+        inp.addEventListener('keydown', e=>{
+          if(e.key==='Enter'){ e.preventDefault(); applyAndGo({ q: e.target.value.trim() || null }); }
+        });
+      });
+      $('#desktop-search-toggle')?.addEventListener('click', ()=> sDesktop?.focus());
+      // loupes
+      $('#search-ic-svg')?.addEventListener('click', ()=> applyAndGo({ q: sDesktop?.value?.trim() || null }));
+      $('#searchGoMobile')?.addEventListener('click', ()=> applyAndGo({ q: sMobile?.value?.trim() || null }));
+    
+      // Sort
+      $('#sort-select')?.addEventListener('change', e=> applyAndGo({ sort: e.target.value || null }));
+      $$('input[name="m-sort"]').forEach(r=>{
+        r.addEventListener('change', e=> applyAndGo({ sort: e.target.value || null }));
+      });
+    
+      // Price
+      const priceMinAll = {{ price_min_all|default:0 }};
+      const priceMaxAll = {{ price_max_all|default:0 }};
+      function readNum(v){ return parseInt(String(v||'').replace(/[^\d]/g,''),10) || 0; }
+      function clampPair(a,b){
+        a = Math.max(priceMinAll, Math.min(a, priceMaxAll));
+        b = Math.max(priceMinAll, Math.min(b, priceMaxAll));
+        if(a>b){ const t=a; a=b; b=t; }
+        return [a,b];
+      }
+      function formatUS(n){ return (n||0).toLocaleString('en-US'); }
+    
+      const minI = $('#priceMinDesktop');
+      const maxI = $('#priceMaxDesktop');
+      const minS = $('#sliderMinDesktop');
+      const maxS = $('#sliderMaxDesktop');
+    
+      function syncPriceInputsDisplay(a,b,skip){
+        if(minI && skip !== minI) minI.value = formatUS(a);
+        if(maxI && skip !== maxI) maxI.value = formatUS(b);
+        if(minS) minS.value = a;
+        if(maxS) maxS.value = b;
+      }
+      syncPriceInputsDisplay({{ pmin }}, {{ pmax }});
+      function applyPrice(a,b){ applyAndGo({ pmin:a, pmax:b }); }
+    
+      minI?.addEventListener('input', e=>{
+        const [a,b] = clampPair(readNum(e.target.value), readNum(maxI?.value));
+        syncPriceInputsDisplay(a,b, e.target);
+      });
+      maxI?.addEventListener('input', e=>{
+        const [a,b] = clampPair(readNum(minI?.value), readNum(e.target.value));
+        syncPriceInputsDisplay(a,b, e.target);
+      });
+      const commitDesktopPrice = ()=>{
+        const [a,b] = clampPair(readNum(minI?.value), readNum(maxI?.value));
+        applyPrice(a,b);
+      };
+      minI?.addEventListener('blur', commitDesktopPrice);
+      maxI?.addEventListener('blur', commitDesktopPrice);
+      [minI,maxI].forEach(i=> i?.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); commitDesktopPrice(); }}));
+    
+      minS?.addEventListener('input', e=>{
+        const [a,b] = clampPair(readNum(e.target.value), readNum(maxS?.value));
+        syncPriceInputsDisplay(a,b);
+      });
+      maxS?.addEventListener('input', e=>{
+        const [a,b] = clampPair(readNum(minS?.value), readNum(e.target.value));
+        syncPriceInputsDisplay(a,b);
+      });
+      minS?.addEventListener('change', ()=> commitDesktopPrice());
+      maxS?.addEventListener('change', ()=> commitDesktopPrice());
+    
+      // Mobile price OK
+      const minM = $('#priceMinMobile');
+      const maxM = $('#priceMaxMobile');
+      $('#priceOk')?.addEventListener('click', ()=>{
+        const [a,b] = clampPair(readNum(minM?.value), readNum(maxM?.value));
+        applyPrice(a,b);
+      });
+    
+      // Colors (desktop + mobile)
+      function applyColorsFromDocument(){
+        const vals = Array.from(new Set($$('input.color-check:checked').map(i=> i.value)));
+        applyAndGo({ color: vals });
+      }
+      $$('.color-check').forEach(chk=> chk.addEventListener('change', applyColorsFromDocument));
+    
+      // Mobile unified panel
+      const mFiltersPanel = $('#mFiltersPanel');
+      const openFiltersBtn = $('#openFilters');
+      const openSearchBtn = $('#openSearch');
+    
+      function toggleMobilePanel(force){
+        const open = typeof force === 'boolean' ? force : (mFiltersPanel.style.display !== 'block');
+        mFiltersPanel.style.display = open ? 'block' : 'none';
+        openFiltersBtn?.classList.toggle('is-active', open);
+        openSearchBtn?.classList.toggle('is-active', open);
+        openFiltersBtn?.setAttribute('aria-expanded', String(open));
+        if(open){ setTimeout(()=> $('#search-mobile')?.focus(), 60); }
+      }
+      openFiltersBtn?.addEventListener('click', ()=> toggleMobilePanel());
+      openSearchBtn?.addEventListener('click', ()=> toggleMobilePanel());
+    
+      // Accordions (mobile)
+      $$('.m-filters-panel .accord .head').forEach(head=>{
+        head.addEventListener('click', ()=>{
+          head.parentElement.classList.toggle('open');
+        });
+      });
+    
+      // Load more via AJAX
+      const loadMoreBtn = $('#loadMoreBtn');
+      const grid = $('#grid');
+      function getCurrentParams(){ return new URLSearchParams(window.location.search); }
+      loadMoreBtn?.addEventListener('click', async ()=>{
+        const next = loadMoreBtn.dataset.nextPage;
+        if(!next) return;
+        const params = getCurrentParams();
+        params.set('page', next);
+        const url = new URL('{{ request.build_absolute_uri }}', window.location.origin);
+        url.pathname = '{{ request.path|cut:"catalog/" }}catalog/load-more/'.replace('//','/');
+        url.search = params.toString();
+    
+        loadMoreBtn.disabled = true;
+        try{
+          const res = await fetch(url.toString(), { headers: { 'X-Requested-With':'XMLHttpRequest' }});
+          const data = await res.json();
+          grid.insertAdjacentHTML('beforeend', data.html);
+          if(data.has_more){
+            loadMoreBtn.dataset.nextPage = data.next_page;
+            loadMoreBtn.disabled = false;
+          }else{
+            loadMoreBtn.remove();
+          }
+          $$('.price .p', grid).forEach(span=>{
+            if(span.dataset._fmt) return;
+            const n = parseInt(String(span.dataset.price||span.textContent).replace(/[^\d]/g,''),10)||0;
+            span.textContent = n.toLocaleString('en-US');
+            span.dataset._fmt = '1';
+          });
+        }catch(e){
+          console.error(e);
+          loadMoreBtn.disabled = false;
+        }
+      });
+    })();
+{% endblock script %}

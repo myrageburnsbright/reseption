@@ -1,10 +1,25 @@
-
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Min, Max
 from .models import Product
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse, HttpRequest, HttpResponseBadRequest
 from decimal import Decimal
 from django.views.generic import DetailView
+from django.template.loader import render_to_string
+from django.db.models import Q, Prefetch, Min, Max
+from django.core.paginator import Paginator, EmptyPage
+from .models import Product, ProductImage, OptionGroup
+from decimal import Decimal
+from io import BytesIO
+from urllib.request import urlopen
+
+from django.conf import settings
+
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import mm
+from reportlab.lib.utils import ImageReader
+from reportlab.pdfgen import canvas
+
 
 def robots_txt(request):
     content = "User-agent: *\nDisallow: /\n"
@@ -15,68 +30,6 @@ def index(request):
     context = {}
 
     return render(request, 'main/index.html', context=context)
-
-PRODUCTS_PER_PAGE = 21
-
-def katalog(request):
-    products_queryset = Product.objects.order_by('id')
-    
-    price_range = Product.objects.aggregate(
-        min_price=Min('base_price'),
-        max_price=Max('base_price')
-    )
-    min_price_overall = price_range.get('min_price')
-    max_price_overall = price_range.get('max_price')
-
-    current_min_price = request.GET.get('price_min', min_price_overall)
-    current_max_price = request.GET.get('price_max', max_price_overall)
-
-    if current_min_price:
-        products_queryset = products_queryset.filter(base_price__gte=current_min_price)
-    
-    if current_max_price:
-        products_queryset = products_queryset.filter(base_price__lte=current_max_price)
-
-    context = {
-        'products': products_queryset[:PRODUCTS_PER_PAGE],
-        'min_price_overall': min_price_overall,
-        'max_price_overall': max_price_overall,
-        'current_min_price': current_min_price,
-        'current_max_price': current_max_price,
-        'show_more_btn': len(products_queryset) > PRODUCTS_PER_PAGE
-    }
-
-    return render(request, 'main/katalog.html', context=context)
-
-def load_more_products(request):
-    
-    try:
-        page_number = int(request.GET.get('page', 1))
-        if page_number < 1:
-            page_number = 1
-    except ValueError:
-        return HttpResponse('')
-    
-    offset = (page_number - 1) * PRODUCTS_PER_PAGE
-    limit = offset + PRODUCTS_PER_PAGE
-
-    products = Product.objects.order_by('id')
-
-    current_min_price = request.GET.get('price_min')
-    current_max_price = request.GET.get('price_max')
-    if current_min_price:
-        products = products.filter(base_price__gte=current_min_price)
-    
-    if current_max_price:
-        products = products.filter(base_price__lte=current_max_price)
-
-    products = products[offset:limit]
-    
-    if not products:
-        return HttpResponse('') # Пустой ответ, чтобы JS спрятал кнопку
-    context = {'products': products}
-    
-    return render(request, 'main/_product_cards.html', context=context)
     
 def product_detail(request, product_id):
     """
@@ -99,35 +52,32 @@ def product_detail(request, product_id):
     }
     return render(request, 'main/product_detail.html', context)
 
-from django.shortcuts import render
-from django.http import JsonResponse, HttpRequest
-from django.core.paginator import Paginator, EmptyPage
-from django.db.models import Q, Min, Max, Prefetch
-from django.template.loader import render_to_string
-from urllib.parse import urlencode
+PER_PAGE = 12
 
-from main.models import Product, ProductImage, OptionGroup, OptionVariant
-
-PER_PAGE = 9
-
-
-def _parse_int(val, default):
+def _parse_int(v, default):
     try:
-        return int(str(val).replace(' ', '').replace(',', ''))
+        return int(str(v).replace(' ', '').replace(',', ''))
     except Exception:
-        return default
-
+        return int(default)
 
 def _get_all_colors():
-    # Все уникальные значения цветов (OptionGroup name="Colors")
-    return list(
-        OptionVariant.objects
-        .filter(group__name='Colors')
-        .values_list('value', flat=True)
-        .distinct()
-        .order_by('value')
-    )
-
+    """
+    Собрать все уникальные значения цветов из ВСЕХ групп с именем 'Colors',
+    а не только из первого найденного OptionGroup.
+    """
+    groups = OptionGroup.objects.filter(name='Colors').prefetch_related('variants')
+    seen, out = set(), []
+    for g in groups:
+        for v in g.variants.all():
+            val = (v.value or '').strip()
+            if not val:
+                continue
+            if val not in seen:
+                seen.add(val)
+                out.append(val)
+    # Стабильная сортировка по алфавиту (без учета регистра)
+    out.sort(key=lambda s: s.lower())
+    return out
 
 def _filter_products(request: HttpRequest):
     """
@@ -147,21 +97,17 @@ def _filter_products(request: HttpRequest):
     price_max_all = int(aggr['price_max_all'] or 0)
 
     # Поиск
-    q = request.GET.get('q', '').strip()
+    q = (request.GET.get('q') or '').strip()
     if q:
         base_qs = base_qs.filter(Q(name__icontains=q) | Q(description__icontains=q))
 
     # Цена
-    pmin = request.GET.get('pmin')
-    pmax = request.GET.get('pmax')
-    pmin = _parse_int(pmin, price_min_all)
-    pmax = _parse_int(pmax, price_max_all)
-    # Кламп и исправление порядка
+    pmin = _parse_int(request.GET.get('pmin'), price_min_all)
+    pmax = _parse_int(request.GET.get('pmax'), price_max_all)
     pmin = max(price_min_all, min(pmin, price_max_all))
     pmax = max(price_min_all, min(pmax, price_max_all))
     if pmin > pmax:
         pmin, pmax = pmax, pmin
-
     base_qs = base_qs.filter(base_price__gte=pmin, base_price__lte=pmax)
 
     # Цвета (множественный выбор)
@@ -180,11 +126,9 @@ def _filter_products(request: HttpRequest):
     elif sort == 'name-desc':
         base_qs = base_qs.order_by('-name')
     else:
-        # как по умолчанию в Meta модели Product (ordering=['name'])
         pass
 
     return base_qs, price_min_all, price_max_all, q, sort, pmin, pmax, selected_colors
-
 
 def _qs_without(request: HttpRequest, remove_keys=(), remove_color_value=None):
     """
@@ -192,7 +136,6 @@ def _qs_without(request: HttpRequest, remove_keys=(), remove_color_value=None):
     """
     qd = request.GET.copy()
 
-    # Удаление конкретного значения color=...
     if remove_color_value is not None:
         colors = qd.getlist('color')
         colors = [c for c in colors if c != remove_color_value]
@@ -201,22 +144,18 @@ def _qs_without(request: HttpRequest, remove_keys=(), remove_color_value=None):
         if colors:
             qd.setlist('color', colors)
 
-    # Удаление указанных ключей
     for k in remove_keys:
         if k in qd:
             del qd[k]
 
-    # Сброс страницы при любом изменении
     if 'page' in qd:
         del qd['page']
 
     return qd.urlencode()
 
-
 def catalog(request: HttpRequest):
     qs, price_min_all, price_max_all, q, sort, pmin, pmax, selected_colors = _filter_products(request)
 
-    # Пагинация
     page_number = _parse_int(request.GET.get('page', 1), 1)
     paginator = Paginator(qs, PER_PAGE)
     try:
@@ -227,10 +166,8 @@ def catalog(request: HttpRequest):
     has_more = page_obj.has_next()
     next_page = page_obj.next_page_number() if has_more else None
 
-    # Справочник всех доступных цветов
     colors_all = _get_all_colors()
 
-    # QS для снятия фильтров
     qs_remove_pmin = _qs_without(request, remove_keys=('pmin',))
     qs_remove_pmax = _qs_without(request, remove_keys=('pmax',))
     qs_clear_all = _qs_without(request, remove_keys=('pmin', 'pmax', 'sort', 'q', 'color', 'page'))
@@ -260,7 +197,6 @@ def catalog(request: HttpRequest):
     }
     return render(request, 'main/catalog.html', ctx)
 
-
 def catalog_load_more(request: HttpRequest):
     """
     AJAX endpoint для кнопки "Load more".
@@ -281,3 +217,217 @@ def catalog_load_more(request: HttpRequest):
         'next_page': page_obj.next_page_number() if page_obj.has_next() else None
     }
     return JsonResponse(data)
+
+def product_onepager_pdf(request):
+    pid = request.GET.get('id')
+    if not pid:
+        return HttpResponseBadRequest("Missing ?id=<product_id>")
+
+    product = get_object_or_404(
+        Product.objects.prefetch_related('gallery_images'),
+        pk=pid
+    )
+
+    # helpers
+    def abs_url(u: str) -> str:
+        return request.build_absolute_uri(u)
+
+    def fetch_image(u: str):
+        if not u:
+            return None
+        try:
+            with urlopen(u) as r:
+                return ImageReader(BytesIO(r.read()))
+        except Exception:
+            return None
+
+    def get_group(name: str):
+        return (
+            OptionGroup.objects
+            .filter(product=product, name__iexact=name)
+            .prefetch_related('variants')
+            .first()
+        )
+
+    def fmt_number(val: Decimal) -> str:
+        q = Decimal('0.01')
+        v = (val or Decimal('0')).quantize(q)
+        return f"{v:,.2f}".replace(",", " ")  # только число, без валюты
+
+    base_price = product.base_price or Decimal('0')
+
+    # main image
+    main_img = None
+    first = product.gallery_images.all().first()
+    if first and getattr(first, 'image', None):
+        main_img = fetch_image(abs_url(first.image.url))
+
+    # groups
+    g_color = get_group('Chose color')
+    g_size = get_group('WWHD(in)')
+    g_back = get_group('backlight')
+
+    # colors
+    color_cards = []
+    if g_color:
+        for v in g_color.variants.all():
+            u = v.image.url if v.image else None
+            img = fetch_image(abs_url(u)) if u else None
+            if img:
+                color_cards.append({'img': img, 'label': (v.text or v.value)})
+    color_cards = color_cards[:6]  # до 6 карточек на странице
+
+    # price rows (только число)
+    def rows_for(group):
+        rows = []
+        if not group:
+            return rows
+        for v in group.variants.all():
+            price = base_price + (v.price_modifier or Decimal('0'))
+            rows.append({'label': (v.text or v.value), 'price': fmt_number(price)})
+        return rows
+
+    size_rows = rows_for(g_size)
+    back_rows = rows_for(g_back)
+
+    # PDF
+    buf = BytesIO()
+    c = canvas.Canvas(buf, pagesize=A4)
+    W, H = A4
+    mx = 12 * mm
+    my = 14 * mm
+    cw = W - 2 * mx
+    y = H - my
+
+    c.setTitle(str(product.name))
+
+    # 1) верхнее фото
+    hero_h = 95 * mm
+    if main_img:
+        bx = mx
+        by = y - hero_h
+        c.setFillColor(colors.whitesmoke)
+        c.rect(bx, by, cw, hero_h, fill=1, stroke=0)
+        try:
+            iw, ih = main_img.getSize()
+            s = min(cw / iw, hero_h / ih)
+            tw, th = iw * s, ih * s
+            tx = bx + (cw - tw) / 2
+            ty = by + (hero_h - th) / 2
+            c.drawImage(main_img, tx, ty, tw, th, preserveAspectRatio=True, mask='auto')
+        except Exception:
+            pass
+        y = by - 6 * mm
+
+    # 2) блок цветов
+    if color_cards:
+        c.setFont("Helvetica-Bold", 10)
+        c.setFillColor(colors.gray)
+        c.drawString(mx, y, "Color options")
+        y -= 4 * mm
+
+        cols = 3
+        gap = 5 * mm
+        card_w = (cw - gap * (cols - 1)) / cols
+        img_h = 42 * mm
+        cap_h = 5 * mm
+        card_h = img_h + cap_h + 12
+
+        rows_cnt = (len(color_cards) + cols - 1) // cols
+        total_h = rows_cnt * card_h + (rows_cnt - 1) * gap
+        top_y = y
+        base_y = top_y - total_h
+
+        for i, card in enumerate(color_cards):
+            row = i // cols
+            col = i % cols
+            x = mx + col * (card_w + gap)
+            card_bottom = top_y - (row + 1) * card_h - row * gap
+
+            c.setFillColor(colors.white)
+            c.setStrokeColor(colors.lightgrey)
+            c.roundRect(x, card_bottom, card_w, card_h, 6, fill=1, stroke=1)
+
+            c.setFillColor(colors.whitesmoke)
+            c.roundRect(x + 6, card_bottom + cap_h + 6, card_w - 12, img_h, 4, fill=1, stroke=0)
+
+            try:
+                iw, ih = card['img'].getSize()
+                aw, ah = card_w - 12, img_h
+                s = min(aw / iw, ah / ih)
+                tw, th = iw * s, ih * s
+                tx = x + 6 + (aw - tw) / 2
+                ty = card_bottom + cap_h + 6 + (ah - th) / 2
+                c.drawImage(card['img'], tx, ty, tw, th, preserveAspectRatio=True, mask='auto')
+            except Exception:
+                pass
+
+            c.setFillColor(colors.black)
+            c.setFont("Helvetica", 9)
+            cap = (card['label'] or '').upper()
+            c.drawCentredString(x + card_w / 2, card_bottom + 3, cap)
+
+        y = base_y - 8 * mm
+
+    # 3) темный блок с ценами
+    if size_rows or back_rows:
+        rows_cnt = max(len(size_rows), len(back_rows), 1)
+        name_h = 10 * mm
+        head_h = 6 * mm
+        row_h = 6 * mm
+        foot_h = 6 * mm
+        pad = 6 * mm
+        panel_h = pad + name_h + 2 * mm + head_h + rows_cnt * row_h + 4 * mm + foot_h + pad
+        py = y - panel_h
+
+        c.setFillColorRGB(0.23, 0.25, 0.29)
+        c.roundRect(mx, py, cw, panel_h, 10, fill=1, stroke=0)
+
+        c.setFillColor(colors.white)
+        c.setFont("Helvetica-Bold", 14)
+        c.drawString(mx + 10, py + panel_h - pad - 7, str(product.name).upper())
+
+        col_gutter = 24  # расстояние между колонками
+        inner_pad_x = 12  # внутренний горизонтальный паддинг внутри панели (слева/справа)
+
+        col_w = (cw - 2 * inner_pad_x - col_gutter) / 2
+        left_x = mx + inner_pad_x
+        right_x = left_x + col_w + col_gutter
+        top_y = py + panel_h - pad - name_h - 2 * mm
+
+        def draw_table(x0, header, rows):
+            if not rows:
+                return
+            c.setFont("Helvetica-Bold", 9)
+            c.setFillColorRGB(0.81, 0.86, 0.91)
+            c.drawString(x0, top_y, header)
+            c.drawRightString(x0 + col_w - 2, top_y, "Price")  # -2pt безопасный отступ
+            c.setFont("Helvetica", 10)
+            c.setFillColor(colors.white)
+            y0 = top_y - 3
+            for r in rows:
+                y0 -= row_h
+                c.drawString(x0, y0, str(r['label']))
+                c.drawRightString(x0 + col_w - 2, y0, '$' + str(r['price']))  # -2pt
+
+        draw_table(left_x, "WWHD (in)", size_rows)
+        draw_table(right_x, "Backlight", back_rows)
+
+        c.setFont("Helvetica", 9)
+        c.setFillColorRGB(0.81, 0.86, 0.91)
+        footer = "  •  ".join(filter(None, [
+            getattr(settings, 'COMPANY_PHONE', '8-800-444-36-72'),
+            getattr(settings, 'COMPANY_NAME', 'RE-SEPTION'),
+            getattr(settings, 'COMPANY_WEBSITE', 're-seption.com'),
+        ]))
+        c.drawCentredString(mx + cw / 2, py + pad / 2, footer)
+
+    c.showPage()
+    c.save()
+
+    pdf = buf.getvalue()
+    buf.close()
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="product_{product.pk}.pdf"'
+    return response
