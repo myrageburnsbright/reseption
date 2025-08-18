@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>RE-SEPTION — Catalog</title>
+<title>{% block title %}{% endblock title %}</title>
 <style>
   :root{
     --bg:#121212;
@@ -85,7 +85,6 @@
   .drawer a{display:block;color:#fff;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:18px}
   .drawer a:last-child{border-bottom:0}
 
-  
   .hero {
     background-image: url('{% static 'img/katalogbase/0788d893732eb8fe.jpg' %}');
     background-size: cover;
@@ -248,9 +247,7 @@
         +1 (555) 105‑6037
       </div>
       <button class="btn secondary">Request a Call</button>
-      <button class="icon-btn" id="desktop-search-toggle" title="Search">
-        <svg class="ic" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-      </button>
+      
       <button class="burger" id="burger" aria-label="Open menu" aria-controls="navDrawer" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -274,12 +271,10 @@
         <span style="display:inline-grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#2a2a2a">VK</span>
       </div>
       <button class="btn" style="width:100%;margin-top:10px">Request a Call</button>
-      <div style="margin-top:10px;color:#bbb">+1 (555) 105‑6037</div>
+      <div style="margin-top:10px;color:#bbb">{{viktor_phone}}</div>
     </div>
   </aside>
 </div>
-
-
 
 {% block content %}{% endblock content %}
 
@@ -300,13 +295,13 @@
     text-align: center;">
           Furniture production for business
           <br>
-          &copy; &laquo;Re-Seption&raquo;, 2025
+          &copy; &laquo;{{site_name}}&raquo;, 2025
           <br>
-          <a href="tel:89310094082">
-           8(931)009-4082
+          <a href="tel:{{viktor_phone}}">
+            {{viktor_phone}}
           </a>
           <br>
-          info@re-seption.ru
+          {{support_email}}
           <br>
           <a href="http://re-seption.com/privacy" rel="noreferrer noopener" target="_blank" style="-webkit-font-smoothing: antialiased;
     font-size: 14px;
@@ -332,7 +327,7 @@
   <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M12 5l7 7M12 5L5 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
 </a>
 
-<a href="tel:+15551056037" class="float" aria-label="Call us">
+<a href="tel:{{viktor_phone}}" class="float" aria-label="Call us">
   <svg viewBox="0 0 32 32"><path fill-rule="evenodd" fill="#fff" d="M23.1928046,29.9984659 C22.8359607,29.9984659 17.2785925,30.2931635 9.28989516,22.7134914 C2.86079512,16.6135311 2.07524092,10.0539422 2.00679659,8.80762336 C1.94021893,7.5936684 2.28772944,4.54835611 6.47590001,2.28568846 C6.99483245,2.00530563 8.02367512,1.88114054 8.28936355,2.14689741 C8.40727446,2.26483869 11.9225129,8.05080755 12.0149127,8.24250103 C12.1073125,8.43388332 12.153668,8.62246489 12.153668,8.80731217 C12.153668,9.07151308 11.9654461,9.40199761 11.5886912,9.79845458 C11.2122474,10.1949115 10.8028259,10.5583823 10.3601155,10.8885556 C9.91740519,11.2190402 9.50798368,11.5691297 9.13122877,11.9391355 C8.75478497,12.30883 8.56656308,12.6131745 8.56656308,12.8509243 C8.59207414,13.4680154 9.09762883,15.678403 12.9488666,19.0632244 C16.8007267,22.4489793 18.6561901,23.4027788 18.8344565,23.4687513 C19.013034,23.5347237 19.1614337,23.5673987 19.280278,23.5673987 C19.5182776,23.5673987 19.8222326,23.3794395 20.1921431,23.0028988 C20.5617424,22.6260468 21.8052514,20.9213441 22.2016063,20.5444922 C22.5979611,20.1682626 22.9283606,19.9799922 23.1928046,19.9799922 C23.3776042,19.9799922 23.5658261,20.0260484 23.7571591,20.1184721 C23.9488033,20.2108957 29.7407488,23.6010073 29.8515042,23.7142807 C30.152037,24.0223595 29.9398596,24.9839388 29.7127489,25.5285226 C28.1267072,29.3318954 24.4080025,29.9984659 23.1928046,29.9984659 Z"></path></svg>
 </a>
 
@@ -347,7 +342,6 @@
   const burger = $('#burger');
   burger?.addEventListener('click', ()=>{
     const open = !drawer.classList.contains('open');
-    console.log('SUKA!')
     drawer.classList.toggle('open', open);
     drawer.setAttribute('aria-hidden', String(!open));
     burger.setAttribute('aria-expanded', String(open));
@@ -371,7 +365,7 @@
   // Header height sync
   function syncHeaderH(){
     const h = $('#siteHeader').getBoundingClientRect().height;
-    document.documentElement.style.setProperty('--header-h', h+'px');
+    document.documentElement.style.setProperty('--header-offset', h+'px');
     document.body.style.paddingTop = h+'px';
   }
   window.addEventListener('resize', syncHeaderH);
