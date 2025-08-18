@@ -4,6 +4,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="{% static "css/modal.css" %}">
 <title>{% block title %}{% endblock title %}</title>
 <style>
   :root{
@@ -21,7 +22,7 @@
     --radius:12px;
     --shadow:0 10px 30px rgba(0,0,0,.08);
     --z-header:2000;
-    --z-modal:1975;
+    --z-modal:11000;
     --z-topbar:1000;
     --z-drawer:1950;
     --z-float:1800;
@@ -201,6 +202,7 @@
     opacity: 1 !important;
     pointer-events: all !important;
   }
+
   @media (max-width:1100px){ .grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
   @media (max-width:960px){
     .nav{display:none}
@@ -245,7 +247,7 @@
         </svg>
         {{viktor_phone}}
       </div>
-      <button class="btn secondary">Request a Call</button>
+      <button class="btn secondary" data-call-modal-open>Request a Call</button>
       
       <button class="burger" id="burger" aria-label="Open menu" aria-controls="navDrawer" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
@@ -257,7 +259,7 @@
   <aside class="panel">
     <div class="panel-inner">
       <div class="logo" style="margin-bottom:14px"><div class="logo-mark">R</div><div>RE-SEPTION</div></div>
-      <a href="#">About</a>
+      <a href="{% url "main:about" %}">About</a>
       <a href="#catalog">Catalog</a>
       <a href="#">Turn‑key Solutions</a>
       <a href="#">Niche Solutions</a>
@@ -269,7 +271,7 @@
         <span style="display:inline-grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#2a2a2a">📨</span>
         <span style="display:inline-grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#2a2a2a">VK</span>
       </div>
-      <button class="btn" style="width:100%;margin-top:10px">Request a Call</button>
+      <button class="btn" style="width:100%;margin-top:10px" data-call-modal-open>Request a Call</button>
       <div style="margin-top:10px;color:#bbb">{{viktor_phone}}</div>
     </div>
   </aside>
@@ -330,6 +332,35 @@
   <svg viewBox="0 0 32 32"><path fill-rule="evenodd" fill="#fff" d="M23.1928046,29.9984659 C22.8359607,29.9984659 17.2785925,30.2931635 9.28989516,22.7134914 C2.86079512,16.6135311 2.07524092,10.0539422 2.00679659,8.80762336 C1.94021893,7.5936684 2.28772944,4.54835611 6.47590001,2.28568846 C6.99483245,2.00530563 8.02367512,1.88114054 8.28936355,2.14689741 C8.40727446,2.26483869 11.9225129,8.05080755 12.0149127,8.24250103 C12.1073125,8.43388332 12.153668,8.62246489 12.153668,8.80731217 C12.153668,9.07151308 11.9654461,9.40199761 11.5886912,9.79845458 C11.2122474,10.1949115 10.8028259,10.5583823 10.3601155,10.8885556 C9.91740519,11.2190402 9.50798368,11.5691297 9.13122877,11.9391355 C8.75478497,12.30883 8.56656308,12.6131745 8.56656308,12.8509243 C8.59207414,13.4680154 9.09762883,15.678403 12.9488666,19.0632244 C16.8007267,22.4489793 18.6561901,23.4027788 18.8344565,23.4687513 C19.013034,23.5347237 19.1614337,23.5673987 19.280278,23.5673987 C19.5182776,23.5673987 19.8222326,23.3794395 20.1921431,23.0028988 C20.5617424,22.6260468 21.8052514,20.9213441 22.2016063,20.5444922 C22.5979611,20.1682626 22.9283606,19.9799922 23.1928046,19.9799922 C23.3776042,19.9799922 23.5658261,20.0260484 23.7571591,20.1184721 C23.9488033,20.2108957 29.7407488,23.6010073 29.8515042,23.7142807 C30.152037,24.0223595 29.9398596,24.9839388 29.7127489,25.5285226 C28.1267072,29.3318954 24.4080025,29.9984659 23.1928046,29.9984659 Z"></path></svg>
 </a>
 
+<div id="callModal" class="modal" aria-hidden="true"> <div class="modal__overlay" data-close></div> <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="callModalTitle"> <button class="modal__close" aria-label="Close" data-close>&times;</button>
+  <h2 id="callModalTitle" class="modal__title">Leave your contact details</h2>
+  <p class="modal__subtitle">We’ll get in touch with you shortly.</p>
+  
+  <form id="callForm" class="modal__form" action="#" method="post" novalidate>
+    <!-- If you use Django, put {% csrf_token %} here -->
+    <label class="field">
+      <input type="text" name="name" placeholder="Your name" autocomplete="name" required>
+    </label>
+  
+    <label class="field field--phone">
+      <select name="cc" aria-label="Country code">
+        <option value="+1" selected>🇺🇸 +1</option>
+        <option value="+44">🇬🇧 +44</option>
+        <option value="+49">🇩🇪 +49</option>
+        <option value="+33">🇫🇷 +33</option>
+      </select>
+      <input type="tel" name="phone" inputmode="tel" placeholder="(000) 000-0000" required>
+    </label>
+  
+    <p class="note">
+      By clicking the button, you agree to the processing of your personal data and our
+      <a href="/privacy/" target="_blank" rel="noopener">Privacy Policy</a>.
+    </p>
+  
+    <button type="submit" class="btn-primary">Send</button>
+  </form>
+  </div> </div>
+
 <script>
     
 (function(){
@@ -373,6 +404,7 @@
   
 })();
 </script>
+<script src="{% static "js/modal.js" %}"></script>
 </body>
 </html>
     
