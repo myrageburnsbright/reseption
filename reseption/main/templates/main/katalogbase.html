@@ -231,11 +231,10 @@
       </a>
     </div>
     <nav class="nav" aria-label="Primary">
-      <a href="#">About</a>
-      <a href="{% url "main:catalog" %}">Catalog</a>
+      <a href="{% url "main:about" %}">About</a>
       <a href="#">Turn‑key Solutions</a>
       <a href="#">Niche Solutions</a>
-      <a class="active" href="#catalog">Shop</a>
+      <a class="active" href="{% url "main:catalog" %}">Catalog</a>
     </nav>
     <div class="grow"></div>
     <div class="header-cta">
@@ -244,7 +243,7 @@
           <circle cx="12" cy="12" r="11" fill="var(--accent)"></circle>
           <path d="M16.6 14.9l-1.9-.8a1 1 0 0 0-1.1.2l-.9.9a12.7 12.7 0 0 1-4-4l.9-.9a1 1 0 0 0 .2-1.1l-.8-1.9a1 1 0 0 0-1.1-.6l-1.8.3a1 1 0 0 0-.8 1c.3 6.1 5.1 10.9 11.2 11.2a1 1 0 0 0 1-.8l.3-1.8a1 1 0 0 0-.6-1.1z" fill="#fff"/>
         </svg>
-        +1 (555) 105‑6037
+        {{viktor_phone}}
       </div>
       <button class="btn secondary">Request a Call</button>
       
