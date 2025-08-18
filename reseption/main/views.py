@@ -35,6 +35,11 @@ def about(request):
     context = {}
 
     return render(request, 'main/about.html', context=context)
+
+def privacy(request):
+    context = {}
+
+    return render(request, 'main/privacypolicy.html', context=context)
     
 def product_detail(request, product_id):
     """
@@ -67,10 +72,9 @@ def _parse_int(v, default):
 
 def _get_all_colors():
     """
-    Собрать все уникальные значения цветов из ВСЕХ групп с именем 'Colors',
-    а не только из первого найденного OptionGroup.
+    Собрать все уникальные значения цветов из ВСЕХ групп с именем 'Chose color'
     """
-    groups = OptionGroup.objects.filter(name='Colors').prefetch_related('variants')
+    groups = OptionGroup.objects.filter(name='Chose color').prefetch_related('variants')
     seen, out = set(), []
     for g in groups:
         for v in g.variants.all():
@@ -92,7 +96,7 @@ def _filter_products(request: HttpRequest):
         Product.objects.all()
         .prefetch_related(
             Prefetch('gallery_images', queryset=ProductImage.objects.order_by('id')),
-            Prefetch('options', queryset=OptionGroup.objects.filter(name='Colors').prefetch_related('variants')),
+            Prefetch('options', queryset=OptionGroup.objects.filter(name='Chose color').prefetch_related('variants')),
         )
     )
 
@@ -118,7 +122,7 @@ def _filter_products(request: HttpRequest):
     # Цвета (множественный выбор)
     selected_colors = [c.strip() for c in request.GET.getlist('color') if c.strip()]
     if selected_colors:
-        base_qs = base_qs.filter(options__name='Colors', options__variants__value__in=selected_colors).distinct()
+        base_qs = base_qs.filter(options__name='Chose color', options__variants__value__in=selected_colors).distinct()
 
     # Сортировка
     sort = request.GET.get('sort', 'default')

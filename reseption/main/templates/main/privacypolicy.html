@@ -1,0 +1,240 @@
+{% extends "main/katalogbase.html" %}
+{% load static %}
+{% block title %}Privacy Policy
+— {{ site_name|default:"Furnibuild" }}{% endblock title %} {% block content %}
+
+<section
+  class="policy container"
+  style="max-width: 900px; padding: 28px 0 80px"
+>
+  <h1 style="margin: 0 0 10px">Privacy Policy</h1>
+  <div class="muted" style="color: #777; margin-bottom: 24px">
+    Effective date: {{ policy_effective_date|default:"2025-01-01" }}
+  </div>
+  <p>
+    This Privacy Policy explains how {{site_name|default:site_name|default:"Furnibuild" }} (“we”, “us”, “our”)
+    collects, uses, shares, and safeguards your personal information when you
+    visit {{ site_name|default:"our website" }}, place an order, or interact with
+    us by email, phone, SMS, or social media. It also describes your privacy
+    rights and how to exercise them.
+  </p>
+  <h2>Who We Are</h2>
+  <p>
+    Legal entity: {{ legal_name|default:company_name|default:"Furnibuild LLC" }}<br />
+    Registered address: {{ company_address|default:"[Company address]" }}<br />
+    Email:
+    <a href="mailto:{{ support_email|default:'hello@furnibuild.store' }}"
+      >{{ support_email|default:"hello@furnibuild.store" }}</a
+    ><br />
+    Phone:
+    <a href="tel:{{ viktor_phone|default:'+1 (000) 000-0000' }}"
+      >{{ viktor_phone|default:"+1 (000) 000-0000" }}</a
+    ><br />
+    Data protection contact:
+    <a href="mailto:{{ support_email|default:support_email }}"
+      >{{ support_email|default:support_email|default:"privacy@furnibuild.store"}}</a
+    >
+  </p>
+  <h2>Scope</h2>
+  <p>
+    This Policy applies to our website, online store, customer support,
+    marketing communications, and any other services that link to it. It does
+    not cover third‑party websites, apps, or services we do not control.
+  </p>
+  <h2>Information We Collect</h2>
+  <ul>
+    <li>
+      Information you provide: name, email, phone, shipping and billing address,
+      company details (and tax/VAT info where applicable), account credentials,
+      order notes, design briefs, files/images you upload, and your
+      communication preferences.
+    </li>
+    <li>
+      Order and service data: items in cart, quotes, purchase history, delivery
+      preferences, warranty requests, support messages, and related
+      correspondence.
+    </li>
+    <li>
+      Payment data: we receive payment status and tokens from our payment
+      processor (e.g., last 4 digits, card brand), but we do not store full card
+      numbers on our servers.
+    </li>
+    <li>
+      Device and usage data: IP address, device identifiers, browser type, pages
+      viewed, timestamps, referring/exit pages, approximate location, cookies
+      and similar technologies.
+    </li>
+    <li>
+      Marketing and surveys: your responses, reviews, and preferences if you opt
+      in.
+    </li>
+    <li>
+      From third parties: delivery partners, payment providers, analytics and
+      advertising platforms, and fraud‑prevention services, as permitted by law.
+    </li>
+  </ul>
+  <h2>How We Use Your Information</h2>
+  <ul>
+    <li>
+      Process orders, provide quotes, manufacture and deliver products, and
+      provide customer support.
+    </li>
+    <li>Set up and manage your account, warranties, and service requests.</li>
+    <li>
+      Personalize content, save preferences, and improve our website and product
+      offerings.
+    </li>
+    <li>
+      Send transactional messages (order updates, delivery notifications,
+      important service notices).
+    </li>
+    <li>
+      Send marketing communications if you opt in, and measure campaign
+      performance.
+    </li>
+    <li>
+      Detect, prevent, and investigate fraud, abuse, or security incidents.
+    </li>
+    <li>Comply with legal obligations and enforce our terms and policies.</li>
+  </ul>
+  <h2>Legal Bases (EEA/UK)</h2>
+  <ul>
+    <li>Contract: to fulfill orders and provide requested services.</li>
+    <li>
+      Legitimate Interests: to operate, improve, and protect our business and
+      prevent fraud.
+    </li>
+    <li>
+      Consent: for optional marketing, cookies (where required), and certain
+      data sharing.
+    </li>
+    <li>Legal Obligations: tax, accounting, and compliance requirements.</li>
+  </ul>
+  <h2>Cookies and Similar Technologies</h2>
+  <p>
+    We use cookies, pixels, and local storage to keep you signed in, remember
+    preferences, analyze traffic, and personalize content and ads. You can
+    control cookies in your browser settings and, where required, through our
+    cookie banner or preferences center. Disabling certain cookies may affect
+    site functionality.
+  </p>
+  <h2>Analytics and Advertising</h2>
+  <p>
+    We may use analytics (e.g., Google Analytics 4) and advertising partners
+    (e.g., Google Ads, Meta, Pinterest) to understand usage and deliver relevant
+    ads. These partners may set cookies or collect identifiers from your device.
+    You can opt out of interest‑based advertising via platform settings and
+    industry tools (NAI, DAA, AppChoices).
+  </p>
+  <h2>How We Share Information</h2>
+  <ul>
+    <li>
+      Service providers: payment processors, shipping carriers, warehousing,
+      IT/hosting, email/SMS providers, analytics, and support tools.
+    </li>
+    <li>
+      Professional advisors: auditors, lawyers, insurers, and consultants under
+      confidentiality obligations.
+    </li>
+    <li>
+      Legal and compliance: when required by law or to protect our rights,
+      users, or the public.
+    </li>
+    <li>
+      Business transfers: in connection with a merger, acquisition, or asset
+      sale, with appropriate safeguards.
+    </li>
+    <li>
+      With your direction or consent: for example, sharing spec sheets with your
+      designer or contractor.
+    </li>
+  </ul>
+  <h2>International Data Transfers</h2>
+  <p>
+    We may process and store information in the United States and other
+    countries. Where required, we use appropriate safeguards such as Standard
+    Contractual Clauses for transfers from the EEA/UK/Switzerland.
+  </p>
+  <h2>Data Retention</h2>
+  <p>
+    We keep personal data only as long as necessary for the purposes described
+    above, including fulfilling orders, warranties, resolving disputes, and
+    meeting legal, tax, and accounting requirements. Typical retention: orders
+    and invoices 7–10 years; account data until deletion; marketing preferences
+    until you opt out.
+  </p>
+  <h2>Security</h2>
+  <p>
+    We implement administrative, technical, and physical measures to protect
+    personal data. No method of transmission or storage is 100% secure; we
+    cannot guarantee absolute security.
+  </p>
+  <h2>Children’s Privacy</h2>
+  <p>
+    Our services are not directed to children under 13, and we do not knowingly
+    collect personal information from them. If you believe a child has provided
+    us personal data, contact us and we will take appropriate action. For
+    EEA/UK, the age threshold may be 16 depending on local law.
+  </p>
+  <h2>Your Rights</h2>
+  <p>
+    <strong>EEA/UK/Swiss residents:</strong> You may have the right to access,
+    correct, delete, restrict, or object to processing, and to data portability.
+    Where processing is based on consent, you can withdraw consent at any time.
+  </p>
+  <p>
+    <strong>California (CPRA):</strong> You may have the right to know, delete,
+    correct, opt out of “sale”/“sharing” of personal information, and limit the
+    use of sensitive personal information, without discrimination.
+  </p>
+  <p>
+    To exercise rights, email
+    <a href="mailto:{{ support_email }}"
+      >{{
+      support_email|default:"privacy@furnibuild.store"
+      }}</a
+    >
+    or write to us at the address above. We will verify your request and respond
+    within the time required by law. You may use an authorized agent where
+    permitted.
+  </p>
+  <h2>Marketing, SMS, and Opt‑Out</h2>
+  <p>
+    You can unsubscribe from marketing emails at any time via the link in the
+    message or by contacting us. If you opt in to SMS, you consent to receive
+    texts; message/data rates may apply. Text STOP to opt out, HELP for help.
+    Transactional messages related to your orders are not marketing and you may
+    still receive them.
+  </p>
+  <h2>Do Not Track</h2>
+  <p>
+    Some browsers transmit “Do Not Track” signals. Because there is no industry
+    standard, we do not respond to DNT signals.
+  </p>
+  <h2>Third‑Party Links</h2>
+  <p>
+    Our website may contain links to third‑party sites or services. We are not
+    responsible for their privacy practices. Review their policies before
+    providing personal information.
+  </p>
+  <h2>Changes to This Policy</h2>
+  <p>
+    We may update this Policy from time to time. We will post the new version on
+    this page with a new “Effective date” above. If changes are material, we may
+    provide additional notice (e.g., by email or a site banner).
+  </p>
+  <h2>Contact Us</h2>
+  <p>
+    Questions about this Policy or your privacy rights?<br />
+    Email:
+    <a href="mailto:{{ support_email|default:'hello@furnibuild.store' }}"
+      >{{ support_email|default:"hello@furnibuild.store" }}</a
+    ><br />
+    Address: {{ company_address|default:"[Company address]" }}<br />
+    Phone:
+    <a href="tel:{{ viktor_phone|default:'+1 (000) 000-0000' }}"
+      >{{ viktor_phone|default:"+1 (000) 000-0000" }}</a
+    >
+  </p>
+</section>
+{% endblock content %}

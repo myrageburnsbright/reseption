@@ -1,3 +1,11 @@
+<style>
+  .card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card:hover {
+  transform: translateY(-5px);           /* двигаем чуть вверх */
+  box-shadow: 0 8px 20px rgba(0,0,0,.15); /* лёгкая тень */
+}</style>
 {% for p in products %}
   <div class="card">
     <a class="thumb" href="{% url "main:product_detail" p.id %}" rel="noopener">
@@ -11,11 +19,13 @@
     </a>
     <h4><a href="{% url "main:product_detail" p.id %}"  rel="noopener">{{ p.name }}</a></h4>
     {% if p.description %}
+      <p> Available in different sizes and colors. </p>
+      {% else %}
       <p>{{ p.description|truncatechars:120 }}</p>
     {% endif %}
     <div class="price">$<span class="p" data-price="{{ p.base_price|floatformat:0 }}">{{ p.base_price|floatformat:0 }}</span></div>
-    <div class="cta">
-      <a class="btn" href="{% url "main:product_detail" p.id %}" rel="noopener">View</a>
+    <div class="cta" style="padding-bottom: 15px">
+      <a class="btn" href="{% url "main:product_detail" p.id %}" rel="noopener">View sizes and colors</a>
     </div>
   </div>
 {% endfor %}

@@ -4,6 +4,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" href="{% static 'img/favicon.png' %}" type="image/x-icon">
+<link rel="shortcut icon" href="{% static 'img/favicon.png' %}" type="image/x-icon">
 <link rel="stylesheet" href="{% static "css/modal.css" %}">
 <title>{% block title %}{% endblock title %}</title>
 <style>
@@ -227,9 +229,9 @@
 <header class="header" id="siteHeader">
   <div class="container header-inner">
     <div class="logo">
-      <div class="logo-mark">R</div>
+      <img alt class="t134__img" imgfield="img" src="{% static "img/FR.svg" %}" style="max-width: 50px; width: 100%; margin:20px auto;">
       <a href="{% url "main:index" %}">
-        <div>RE-SEPTION</div>
+        <div>FURNIBUILD</div>
       </a>
     </div>
     <nav class="nav" aria-label="Primary">
@@ -258,9 +260,13 @@
   <div class="backdrop" data-close="drawer" tabindex="-1"></div>
   <aside class="panel">
     <div class="panel-inner">
-      <div class="logo" style="margin-bottom:14px"><div class="logo-mark">R</div><div>RE-SEPTION</div></div>
+      <div class="logo" style="margin-bottom:14px">
+        
+        <img alt="logo" src="{% static "img/FR.svg" %}" style="width:50px; height:50px;flex:0 0 50px;display:block; object-fit:contain;">
+        <div>FURNIBUILD</div>
+      </div>
       <a href="{% url "main:about" %}">About</a>
-      <a href="#catalog">Catalog</a>
+      <a href="{% url "main:catalog" %}">Catalog</a>
       <a href="#">Turn‑key Solutions</a>
       <a href="#">Niche Solutions</a>
       <a href="#">FAQ</a>
@@ -281,7 +287,7 @@
 
 <section class="hero" style="text-align: center; padding-bottom: 50px;">
     <div class="t-col t-col_10 t-prefix_1" style="text-align: center; ">
-        <img alt class="t134__img" imgfield="img" src="{% static "img/_4.svg" %}" style="max-width: 200px; width: 100%; margin:20px auto;">
+        <img alt class="t134__img" imgfield="img" src="{% static "img/logo_full.svg" %}" style="max-width: 500px; width: 100%; margin:20px auto;">
         <div class="t134__descr" field="descr">
          <div data-customstyle="yes" style="text-align: center;       -webkit-font-smoothing: antialiased;
     font-size: 14px;
@@ -304,7 +310,7 @@
           <br>
           {{support_email}}
           <br>
-          <a href="http://re-seption.com/privacy" rel="noreferrer noopener" target="_blank" style="-webkit-font-smoothing: antialiased;
+          <a href="{% url "main:privacy" %}" rel="noreferrer noopener" target="_blank" style="-webkit-font-smoothing: antialiased;
     font-size: 14px;
     line-height: 26px;
     letter-spacing: 1px;
@@ -354,7 +360,7 @@
   
     <p class="note">
       By clicking the button, you agree to the processing of your personal data and our
-      <a href="/privacy/" target="_blank" rel="noopener">Privacy Policy</a>.
+      <a href="{% url "main:privacy" %}" target="_blank" rel="noopener">Privacy Policy</a>.
     </p>
   
     <button type="submit" class="btn-primary">Send</button>
