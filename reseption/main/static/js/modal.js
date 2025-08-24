@@ -21,7 +21,8 @@ document.addEventListener('DOMContentLoaded', function(){
 
     form.addEventListener("submit", async function(e) {
         e.preventDefault(); 
-      
+        e.stopPropagation();
+        e.stopImmediatePropagation();
         const formData = new FormData(this);
       
         let response = await fetch(window.DJANGO_URLS.form_url, {
@@ -29,7 +30,8 @@ document.addEventListener('DOMContentLoaded', function(){
           body: formData,
           headers: {
             "X-Requested-With": "XMLHttpRequest"
-          }
+          },
+          credentials: 'same-origin'
         });
 
         dialog.classList.add('hide');
@@ -38,8 +40,8 @@ document.addEventListener('DOMContentLoaded', function(){
         let data = isJSON ? await response.json() : await response.text();
         //let data = await response.json();
         console.log(data);
-        
-    }, true);
+        return false;
+    });
 
     function refreshState(){
         form.reset();
