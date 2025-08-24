@@ -11,6 +11,54 @@ document.addEventListener('DOMContentLoaded', function(){
     
     modal.querySelectorAll('button:not([type])').forEach(b=> b.type='button');
     
+    let submitBtn = form.querySelector('#callSubmitBtn');
+    if(!submitBtn){
+    let existing = form.querySelector('button[type="submit"], input[type="submit"], .btn-primary');
+    if(existing){
+    if(existing.tagName.toLowerCase()==='input'){
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.id = 'callSubmitBtn';
+    btn.className = existing.className || 'btn-primary';
+    btn.textContent = existing.value || existing.textContent || 'Send';
+    existing.replaceWith(btn);
+    submitBtn = btn;
+    }else{
+    existing.type = 'button';
+    if(!existing.id) existing.id = 'callSubmitBtn';
+    submitBtn = existing;
+    }
+    }else{
+    submitBtn = document.createElement('button');
+    submitBtn.type = 'button';
+    submitBtn.id = 'callSubmitBtn';
+    submitBtn.className = 'btn-primary';
+    submitBtn.textContent = 'Send';
+    form.appendChild(submitBtn);
+    }
+    }
+    
+    form.setAttribute('novalidate','novalidate');
+    form.addEventListener('submit', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    return false;
+    }, true);
+    
+    form.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+    e.preventDefault();
+    e.stopPropagation();
+    sendForm();
+    }
+    });
+    
+    submitBtn.addEventListener('click', function(e){
+    e.preventDefault();
+    sendForm();
+    });
+    
     function openModal(){
     modal.classList.add('is-open');
     document.body.classList.add('modal-open');
@@ -21,40 +69,24 @@ document.addEventListener('DOMContentLoaded', function(){
     document.body.classList.remove('modal-open');
     }
     
-    form.querySelectorAll('input, select, textarea').forEach(el=>{
-    el.addEventListener('keydown', function(e){
-    if(e.key === 'Enter'){
-    e.preventDefault();
-    form.dispatchEvent(new Event('submit', {bubbles:true, cancelable:true}));
-    }
-    });
-    });
-    
     let submitting = false;
-    form.addEventListener('submit', async function onSubmit(e){
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-    
+    async function sendForm(){
     if(submitting) return;
     submitting = true;
-    
     try{
-      const formData = new FormData(form);
-      const url = form.getAttribute('action') || (window.DJANGO_URLS && window.DJANGO_URLS.form_url);
-      if(!url) throw new Error('Нет URL для отправки формы');
+    const formData = new FormData(form);
+    const url = form.getAttribute('action') || (window.DJANGO_URLS && window.DJANGO_URLS.form_url);
+    if(!url) throw new Error('Нет URL для отправки формы');
     
       const response = await fetch(url, {
         method: 'POST',
-        body: formData,
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest'
-        },
+        body: formData, // содержит {% csrf_token %}
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
         credentials: 'same-origin'
       });
     
-      dialog.classList.add('hide');
-      dialog_success.classList.remove('hide');
+      dialog?.classList.add('hide');
+      dialog_success?.classList.remove('hide');
     
       const isJSON = response.headers.get('content-type')?.includes('application/json');
       const data = isJSON ? await response.json() : await response.text();
@@ -65,13 +97,12 @@ document.addEventListener('DOMContentLoaded', function(){
     }finally{
       submitting = false;
     }
-    return false;
-    });
+    }
     
     function refreshState(){
     form.reset();
-    dialog.classList.remove('hide');
-    dialog_success.classList.add('hide');
+    dialog?.classList.remove('hide');
+    dialog_success?.classList.add('hide');
     }
     
     openers.forEach(el=>{
