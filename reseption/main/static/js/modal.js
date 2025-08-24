@@ -34,10 +34,12 @@ document.addEventListener('DOMContentLoaded', function(){
 
         dialog.classList.add('hide');
         dialog_success.classList.remove('hide');
-        let data = await response.json();
+        let isJSON = response.headers.get('content-type')?.includes('application/json');
+        let data = isJSON ? await response.json() : await response.text();
+        //let data = await response.json();
         console.log(data);
         
-    });
+    }, true);
 
     function refreshState(){
         form.reset();
