@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="{% static "css/modal.css" %}">
 <title>{% block title %}{% endblock title %}</title>
 <style>
+  
   :root{
     --bg:#121212;
     --bg-2:#1f1f1f;
@@ -204,8 +205,9 @@
     opacity: 1 !important;
     pointer-events: all !important;
   }
-
-  @media (max-width:1100px){ .grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+  {% block style %}
+  {% endblock style %}
+  @media (max-width:1100px){ .grid{grid-template-columns:repeat(2,minmax(0,1fr))} .btn {padding: 10px 12px;}}
   @media (max-width:960px){
     .nav{display:none}
     .burger{display:flex}
@@ -220,8 +222,26 @@
     aside.filters{display:none}
     .m-topbar{display:block}
     .toolbar{display:none}
+    .btn {padding: 9px 12px;}
+    .logo {gap: 14px;}
+    .header-cta {gap: 14px;}
   }
-  @media (max-width:620px){ .grid{grid-template-columns:1fr} }
+  @media (max-width:768px){ 
+  .logo {gap: 10px;}
+  .header-cta {gap: 10px;}
+  .container {padding: 0 13px;}
+}
+  @media (max-width:620px){ .grid{grid-template-columns:1fr} 
+  .btn {margin: 0px 5px;}
+  .logo {gap: 1px;}
+  .header-cta {gap: 5px;}
+  .container {padding: 0 7px;}
+}
+  @media (max-width:374px) {
+    .btn {padding: 4px 8px; margin: 0px 5px;}
+    .container {padding: 0 3px;}
+  }
+
 </style>
 </head>
 <body>
