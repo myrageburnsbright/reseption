@@ -3,11 +3,12 @@ document.addEventListener('DOMContentLoaded', function(){
     if(!modal) return; // нет модалки — выходим тихо
     
     const dialog = modal.querySelector('.modal__dialog');
+    const dialog_success = modal.querySelector('.modal__success');
     const form = modal.querySelector('#callForm');
     const openers = document.querySelectorAll('[data-call-modal-open]');
     const overlay = modal.querySelector('.modal__overlay');
     const closeBtns = modal.querySelectorAll('[data-close]');
-    
+
     function openModal(){
     modal.classList.add('is-open');
     document.body.classList.add('modal-open');
@@ -17,9 +18,35 @@ document.addEventListener('DOMContentLoaded', function(){
     modal.classList.remove('is-open');
     document.body.classList.remove('modal-open');
     }
+
+    form.addEventListener("submit", async function(e) {
+        e.preventDefault(); 
+      
+        const formData = new FormData(this);
+      
+        let response = await fetch(window.DJANGO_URLS.form_url, {
+          method: "POST",
+          body: formData,
+          headers: {
+            "X-Requested-With": "XMLHttpRequest"
+          }
+        });
+
+        dialog.classList.add('hide');
+        dialog_success.classList.remove('hide');
+        let data = await response.json();
+        console.log(data);
+        
+    });
+
+    function refreshState(){
+        form.reset();
+        dialog.classList.remove('hide');
+        dialog_success.classList.add('hide');
+    }
     
     openers.forEach(el=>{
-    el.addEventListener('click', function(e){ e.preventDefault(); openModal(); });
+    el.addEventListener('click', function(e){ e.preventDefault(); refreshState(); openModal(); });
     });
     overlay?.addEventListener('click', closeModal);
     closeBtns.forEach(b=> b.addEventListener('click', function(e){ e.preventDefault(); closeModal(); }));

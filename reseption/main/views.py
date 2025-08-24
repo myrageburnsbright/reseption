@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Min, Max
 from .models import Product
@@ -7,7 +8,7 @@ from django.views.generic import DetailView
 from django.template.loader import render_to_string
 from django.db.models import Q, Prefetch, Min, Max
 from django.core.paginator import Paginator, EmptyPage
-from .models import Product, ProductImage, OptionGroup
+from .models import Product, ProductImage, OptionGroup, RequestCall
 from decimal import Decimal
 from io import BytesIO
 from urllib.request import urlopen
@@ -61,6 +62,16 @@ def product_detail(request, product_id):
         'main_image': main_image.image if main_image.image else None,
     }
     return render(request, 'main/product_detail.html', context)
+
+def callform(request):
+    if request.method == "POST":
+        name = request.POST.get("name")
+        phone = request.POST.get("phone")
+        cc = request.POST.get("cc")
+        cc_phone = str(cc or "") + str(phone or "")
+        RequestCall.objects.create(name=name, phone= cc_phone)
+        return JsonResponse({"name": name, "phone": phone, "cc": cc})
+    
 
 PER_PAGE = 12
 

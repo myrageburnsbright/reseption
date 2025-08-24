@@ -340,7 +340,7 @@
             </div>
             {% endfor %}
             <button class="buy-button">ADD TO CART</button>
-            <a href="{% url "main:product_onepager_pdf" %}?id={{product.id}}">PDF</a>
+            <a class="buy-button" href="{% url "main:product_onepager_pdf" %}?id={{product.id}}">PDF</a>
         </form>    
     </div>
 </main>

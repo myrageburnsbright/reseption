@@ -2,7 +2,7 @@
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
-from .models import Product, ProductImage, OptionGroup, OptionVariant
+from .models import Product, ProductImage, OptionGroup, OptionVariant, RequestCall
 
 # --- Инлайны для редактирования на странице Товара ---
 
@@ -35,6 +35,12 @@ class OptionGroupInline(admin.TabularInline):
     edit_variants_link.short_description = 'Управление Вариантами'
 
 # --- Основные классы Админки ---
+
+@admin.register(RequestCall)
+class RequestCallAdmin(admin.ModelAdmin):
+    """Админка для Заявок."""
+    list_display = ('name', 'phone', 'created_at')
+    search_fields = ('name', 'phone', 'created_at')
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):

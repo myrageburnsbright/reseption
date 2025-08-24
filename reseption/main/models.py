@@ -107,3 +107,10 @@ class OptionVariant(models.Model):
         verbose_name = "Option Variant"
         verbose_name_plural = "Option Variants"
         ordering = ['id']
+
+class RequestCall(models.Model):
+    name = models.CharField("Name", max_length=255)
+    phone = models.CharField("Phone", max_length=20)
+    created_at = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return self.name

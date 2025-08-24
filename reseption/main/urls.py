@@ -14,4 +14,5 @@ urlpatterns = [
     path('product-pdf/', views.product_onepager_pdf, name='product_onepager_pdf'),
     path('about/', about, name='about'),
     path('privacy/', privacy, name='privacy'),
+    path("callform/", views.callform, name="callform"),
 ]
